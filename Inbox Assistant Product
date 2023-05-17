@@ -1,0 +1,439 @@
+① Problem description
+Manual labeling of pdf documents is time consuming.
+
+② Proposed value
+Automating the document labeling process will:
+
+save time for the labelers; and
+
+give clinics the ability to train using their own documents.
+
+③ Proposed solution
+Create a Document Training feature in the Web App that automates the labeling process:
+
+Document classification – classify each page of the pdf using 10 pre-defined classes
+
+Template classification – classify each page of the pdf as a particular template (i.e., not part of the pre-defined classes)
+
+Region cropping – crop one or more regions on the page
+
+Entity extraction – extract data from the cropped region
+
+Designs via Phelix Web App 
+
+④ Scope & Requirements
+Navigation – Main Menu > Manage (Control Panel) > Inbox Assistant > new tab under it
+
+
+Upload/Import Document
+
+User is able to import multiple PDF files
+
+Number of PDFs to be reviewed gets populated
+
+PDF Indexing
+
+Each PDF is indexed into a set of PNGs
+
+Open Viewer
+
+PNGs get populated in the Viewer
+
+Four Steps to Annotate Pages for ML
+
+Document classification (png-level)
+
+Have 10 classes OOTB or other
+
+AI makes a suggestion of class-type and user chooses
+
+Yes
+
+go to step b.
+
+No
+
+select another class
+
+go to step b.
+
+give users the ability to undo (go back)
+
+Template classification (png-level)
+
+Have 100s of templates 
+
+AI makes a suggestion OR AI tells user it’s not a template
+
+Yes
+
+go to step c.
+
+No
+
+select another template OR create a new template OR move on to next page (not a template, don’t want to create it)
+
+go to step c.
+
+Region cropping (region-level)
+
+Only if a template is selected or created
+
+List of possible regions are specific for each document class
+
+User selects a region type and crops it
+
+repeat for all relevant regions in the template
+
+Each region is converted into a png
+
+Entity extraction
+
+Each cropped region in converted from image to text + coordinates
+
+List of possible entities are specific for each document class
+
+User selects an entity type and highlights it
+
+repeat for all relevant entities in the template
+
+Save text + coordinates of highlighted entities
+
+
+Using Azure text labeling tool right now
+
+Another version of the process (Hassaan, 23rd Feb 2021)- 
+
+Document Training store
+
+Upload PDF’s
+
+Each PDF is indexed into set of pngs
+
+Each png is classified as a document type
+
+Each png if classified as a template type (if required)
+
+Each template consists of n regions
+
+One png for each region type
+
+Each region is converted to text + coordinates
+
+Each entity is cropped
+
+Save text + coordinates of highlighted entities
+
+Should be able to index pages by class, template, as well as all template regions by region type
+
+ⓘ Articulate what is in scope, and what is not. It is important to ensure everyone is on the same page about how big this is and how much we want to invest. Your answer here may change as the initiative is discussed with others.
+
+⑤ Dependencies
+To be added
+
+ⓘ List out which external people or teams are implicated by this problem and/or solution.
+
+⑥ Success Criteria
+To be added
+
+ⓘ What measures, if any, will help us to define success?
+
+Implementation
+Document Upload
+
+URL: document-service/document/file
+
+Controller Name: DocumentTrainingController
+
+Function Name: saveFile
+
+Related Table names: document_master, document_image, document_type, template_type, document_type_suggestion, template_type_suggestion
+
+Python endpoints: “http://34.74.50.167/pdf2png”, “http://34.74.50.167/doc-classifier2”, “http://34.74.50.167/template-classifier”.
+
+Description: This API is accepting multiple documents at a time and then it will store the pdf files to bucket and store the information to the table “document_master”. And respond to the frontend that the “Documents are uploaded successfully” and at the same time notify to a python endpoint “http://34.74.50.167/pdf2png” it will extract the pages according to the given pdf files and convert to .png file and return to the API. This process will be happing as a back process so the user will be not wait for a long time.
+
+So when the API get the response the .png images on by one then again send the images to another two python end point. Which are
+
+i. Document Classify: The end point is “http://34.74.50.167/doc-classifier2”. This end point will extract the document classification and stored to  table “document_type” and “document_type_suggestion”.
+
+ii. Template Classify: The end point is “http://34.74.50.167/template-classifier”. This end point will extract the template classification and stored to  table “template_type” and “template_type_suggestion”.
+
+
+Get All Documents
+
+URL: document-service/document/all-files
+
+Controller Name: DocumentTrainingController
+
+Function Name: getAllDocument
+
+Related Table names: document_master, document_image
+
+Description: Display all documents of the specific partner with a pagination.
+
+ 
+
+Get Document
+
+URL: document-service/document/file
+
+Controller Name: DocumentTrainingController
+
+Function Name: getDocument
+
+Related Table names: document_master, document_image, document_type, template_type, document_type_suggestion, template_type_suggestion
+
+Description: Display the information of specific documents respect of it’s id. Also there displaying the related images too. But the images are private so we are converting the images to signed url and the life time is 15 minute.
+
+ 
+
+Start Review Document
+
+URL: document-service/document/start-review
+
+Controller Name: DocumentTrainingController
+
+Function Name: startReviewDocument
+
+Related Table names: document_master
+
+Description: Return the document id which review status is not completed. If all documents are completed then it returns the first document from the list.
+
+ 
+
+File Status
+
+URL: document-service/document/file-status
+
+Controller Name: DocumentTrainingController
+
+Function Name: getFileStatus
+
+Related Table names: document_master
+
+Description: Return the total no of complete review and incomplete review from the document list.
+
+ 
+
+Delete Document
+
+URL: document-service/document/file
+
+Controller Name: DocumentTrainingController
+
+Function Name: deleteDocument
+
+Related Table names: document_master, document_image, document_type_suggestion, template_type_suggestion
+
+Description: By this API user can delete the specific document and its information even the pdf files and its related images will be deleted from bucket.
+
+ 
+
+Update Document Classify of an image
+
+URL: document-service/image/update-image-document-classify
+
+Controller Name: ImageController
+
+Function Name: updateImageDocument
+
+Related Table names: document_image
+
+Description: Update the document type of a specific image.
+
+ 
+
+Update Template Classify of an image
+
+URL: document-service/image/update-image-template-classify
+
+Controller Name: ImageController
+
+Function Name: updateImageTemplate
+
+Related Table names: document_image
+
+Description: Update the template type of a specific image.
+
+ 
+
+Get All Document Type
+
+URL: document-service/document-type/
+
+Controller Name: DocumentTypeController
+
+Function Name: getAllDocumentType
+
+Related Table names: document_type
+
+Description: This API is fetching all document types.
+
+ 
+
+Get All Template Type
+
+URL: document-service/template-type/
+
+Controller Name: TemplateTypeController
+
+Function Name: getAllTemplateType
+
+Related Table names: template_type
+
+Description: This API is fetching all template types.
+
+ 
+
+Get My Template Type
+
+URL: document-service/template-type/my
+
+Controller Name: TemplateTypeController
+
+Function Name: getMyTemplateType
+
+Related Table names: template_type
+
+Description: This API is fetching all template types related to specific partner id. Also, there are pagination with keyword search.
+
+ 
+
+Insert Template Type
+
+URL: document-service/template-type/
+
+Controller Name: TemplateTypeController
+
+Function Name: createTemplateType
+
+Related Table names: template_type
+
+Description: This API is using for insert the template type of a specific partner.
+
+ 
+
+Update Template Type
+
+URL: document-service/template-type/
+
+Controller Name: TemplateTypeController
+
+Function Name: createTemplateType
+
+Related Table names: template_type
+
+Description: This API is using for update the template type of a specific type of a specific partner.
+
+ 
+
+Get All Regions
+
+URL: document-service/document-type/regions
+
+Controller Name: DocumentTypeController
+
+Function Name: getAllRegions
+
+Related Table names: document_type, region_type, document_region_relation
+
+Description: This API is using for showing the document types and its region types.
+
+ 
+
+Get Regions by Document Type Id
+
+URL: document-service/document-type/regions-by-document-type
+
+Controller Name: DocumentTypeController
+
+Function Name: getRegionsByDocumentId
+
+Related Table names: document_type, region_type, document_region_relation
+
+Description: This API is using for showing the specific document type and its region types.
+
+ 
+
+Get Regions by Document Type Id
+
+URL: document-service/image-region/file
+
+Controller Name: ImageRegionController
+
+Function Name: saveFile
+
+Related Table names: image_region
+
+Python endpoints: “http://34.74.50.167/azure-ocr”
+
+Description: This API is using for upload the image region and send it to python endpoints “http://34.74.50.167/azure-ocr” and getting the response and send it to UI.
+
+ 
+
+Delete Image Region
+
+URL: document-service/image-region/delete
+
+Controller Name: ImageRegionController
+
+Function Name: deleteRegion
+
+Related Table names: image_region, document_image
+
+Description: This API is using for delete image region respect of image and it specific region. And at the time of delete update the current annotation and process annotation to the table “document_image”.
+
+ 
+
+Update Annotation of Document Image
+
+URL: document-service/image/annotation
+
+Controller Name: ImageController
+
+Function Name: annotation
+
+Related Table names: document_image
+
+Description: This API is using for update of annotation according to the image id.
+
+ 
+
+Update Process Annotation of Document Image
+
+URL: document-service/image/process-annotation
+
+Controller Name: ImageController
+
+Function Name: process-annotation
+
+Related Table names: document_image
+
+Description: This API is using for update of process annotation according to the image id.
+
+Document Training Frontend
+
+ 
+
+Faxes 
+
+easiest way is to translates to email in inbox
+
+cloud environment doesn’t have BAA associated with it (coming soon) - Ben to advise on timelines 
+
+getmessage and getcontent API
+
+Other Resources
+Name
+
+Link
+
+ 
+
+RingCentral Meeting Notes 2021
+
+https://docs.google.com/document/d/1tovbECSYjKbs1oYys8dMYqzK3q5ut-vJ/edit
+
+ 
+
