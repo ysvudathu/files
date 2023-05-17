@@ -1,0 +1,953 @@
+Product: Patient Journey Automation
+Created by Mayank, last modified on Mar 09, 2021
+① Problem description
+Most other tools provide very limited and rigid automation around appointments and journeys
+
+Clinics has limited use for these tools because of lack of functionality
+
+Clinics are forced to use manual efforts to supplement the limited automated tools
+
+② Proposed value
+It allows clinics to use zero code workflow builders to create and customize journeys across channels like SMS, Email, Phone, Fax using checkpoints targeted and patient and physician engagement
+
+③ Proposed solution
+Phelix is developing a zero code and fully configurable patient journey builder that allows clinics to configure and automate specific journeys and mini digital experiences for common conditions or cohort groups, helping to proactively deliver care. Clinics can select from existing templates or configure their own time or event based checkpoints, configure their own EMR inclusion/exclusion logic and rules, customize their messages and response flows across all channels, and embed notifications with fully customizable, temporary, and secure web links that let you build your own mini digital health experiences (like Shopify for healthcare), including identity verification, screenings, self check-in, appointment booking, viewing test results, sharing records, digital payments, and more, all without downloading an app
+
+④ Alternative solutions
+Manually via phone
+
+EMR-integrated patient engagement app
+
+mobile-app focused (for patients)
+
+limited engagement via app
+
+not as customizable
+
+simple functionality
+
+SMS and email reminders
+
+Competitors
+
+https://wellapp.com/ (healthcare focused)
+
+https://www.podium.com/ (generic, clinics use for reviews)
+
+⑤ Scope
+Form Builder
+
+Clinical Elements
+
+Medication Capture
+
+Front-end
+
+Designs - https://www.figma.com/file/JOQsg9BgAZ1h684U2GRkPh/Phelix.AI?node-id=2220%3A10859
+
+https://www.medisafeapp.com/
+
+Back-end
+
+Need to find the DB for Search
+
+NDC
+
+RxNorm
+
+Upload to Oscar (via Integration Interface)
+
+Features
+
+Medication List
+
+Problem List
+
+Medication Adherence (encounter notes in patient chart)
+
+Report Side Effects (encounter notes in patient chart)
+
+Checkpoint Builder
+
+Email
+
+Build interface like SMS
+
+New Trigger Type - Campaigns
+
+Pre-created template
+
+Importing CSV
+
+Basic Campaign tracking (opens, clicks, form submissions)
+
+Segmentation
+
+SMS
+
+Campaigns
+
+Email
+
+SMS
+
+Virtual Waiting Room/Wayfinding
+
+⑥ Dependencies
+ⓘ List out which external people or teams are implicated by this problem and/or solution.
+
+⑦ Success Criteria
+ⓘ What measures, if any, will help us to define success?
+
+X customers by Y.
+
+Patient journey automation is to create and customize all outbound patient workflows (mostly around appointments)
+
+Finalizing baseline patient journey automation (for needs of WELL/akumin)
+
+Form Builder
+
+Debashis/Ahsan
+
+Virtual Waiting Room
+
+Checkpoint Builder
+
+Time-based
+
+Requirements
+
+Reminder before X hours of appt. With customizable SMS as per clinic.
+
+If instant confirmation SMS not replied, then trigger confirmation call after 1 hour of appt created. Twilio call implementation.
+
+Weekly confirmation setting on MS for each clinic. If it's on then send weekly confirmation SMS, EMAIL
+
+If Weekly confirmation is on then send weekly confirmation CALL to patient.
+
+Rewrite the current function acc to the new microservice
+
+Changes in architecture re: implementation, functionality remains the same
+
+Aditya
+
+API
+
+Validation
+
+token/auth
+
+New dev
+
+Flag (leave for now)
+
+
+Resources - 1 BE (new)
+
+Next Step - Document Epic and User Stories
+
+Track here - https://phelix.atlassian.net/secure/RapidBoard.jspa?rapidView=15&projectKey=FOR&selectedIssue=FOR-25
+
+Attachments:
+ Screen Shot 2021-02-21 at 4.12.01 PM.png (image/png)
+
+Form Builder
+Navigation
+Current - Home > Manage Menu > eForm Assistant
+
+
+New - Home > Control Panel Menu > Patient Journey Automation > Form Builder
+
+Requirements
+ 
+
+Form Builder - Home Screen (design - Phelix Web App)
+
+User can create a new form by clicking a button and entering
+
+Form Name
+
+Form Type
+
+User is able to see two sections
+
+My forms
+
+Active Forms
+
+User can edit a form
+
+User can view form submissions
+
+Draft Forms
+
+User can edit a form
+
+Domain settings
+
+ 
+
+Form Builder - Edit Screen
+
+Global Settings
+
+Form Name
+
+Form Template (currently Form Type)
+
+Design Settings
+
+Add button to apply to all forms (in the account)
+
+Step Settings
+
+Step Name
+
+Step Type
+
+Normal Step
+
+Logic Step
+
+Redirect Step (coming soon) (design to be modified Phelix Web App)
+
+e.g. user
+
+ is in the middle of a check-in form and wants to check if an action is done on a previous form (e.g. registration done, payment done etc.)
+
+
+Convert ^ to Step instead of an Element
+
+Form Configuration
+
+If Reg/Payment/Check-in/Confirm is Yes/No
+
+Redirect to one of the above form
+
+If Complete
+
+*Move to next step
+
+If Not Complete
+
+*redirect to incomplete form for user to fill
+
+**when user completes this
+
+***take back to the original form
+
+Form Preview
+
+
+You need to complete the Form Name to proceed
+
+Button that says go to Form Name
+
+Skip the OTP for the redirected form
+
+Once the form is completed, redirect back to the original form
+
+Change Form Tag to Appointment Tag
+
+Form Configuration
+
+Default Elements
+
+Logo
+
+Form Title
+
+Form Description
+
+Form Submission (currently Last Step URL/Action) Phelix Web App
+
+Add redirect to form
+
+Borrow the same logic as Redirect Step (e.g. skipping OTP etc.)
+
+Logic Elements
+
+Dropdown
+
+Radio
+
+Yes/No
+
+Acts like a default radio
+
+Multi Section Screening
+
+Clinical Elements
+
+COVID Screening (done)
+
+Height/Weight (done)
+
+Medication Capture (in progress)
+
+Medication List - Phelix Web App 
+
+Patient can add a list of all Medications they take
+
+List of medications is automatically populated from the DB
+
+If Allergies is Yes, patient can add a list of all Allergies they have
+
+If Include Details is Yes, capture additional details for each medicine
+
+Condition (text)
+
+Frequency (dropdown)
+
+As Needed
+
+Every Day
+
+* 1 times a day, 2 times a day, 3 times a day…24 times a day
+
+Specific Days
+
+* 1 times a day, 2 times a day, 3 times a day…24 times a day
+
+* Day selection - Sunday, Monday, Tuesday… (multiple choice)
+
+Days Interval
+
+*Every 2 days, Every 3 days, Every 4 days…Every 365 days
+
+Strength (text)
+
+Units (dropdown)
+
+g, IU, mcg, mcg/hr, mcg/ml, mEq, mg, mg/cm2, mg/g, mg/ml, mL, %
+
+Data Source
+
+disable the dropdown and only show Phelix Directory for now
+
+Medication Adherence
+
+Report Side Effects
+
+Anatomy Diagram (coming soon)
+
+Injury workflow
+
+View Test Results (coming soon)
+
+Vaccine Screening (coming soon)
+
+Smart Elements
+
+Walk-in Appointment (done)
+
+Patient Verification
+
+Basic Verify ID
+
+all the EMR search/create is going to happen at the end of Form Submission
+
+One Time Password (currently called Verify Patient ID (Smart Element))
+
+rename it to One Time Password
+
+by default uses Phone, need to add Email as option
+
+if Phone/Email match, ask user to choose one for receiving OTP
+
+change form config of Patient ID for user to choose between Basic Verify ID and OTP
+
+Preferred Pharmacy  - Phelix Web App (in progress)
+
+Search from a list
+
+Choose how to receive prescription
+
+Booking
+
+Single Location (default)
+
+Multi Location (activate if multi location available)
+
+GP or Family Doctor - Phelix Web App (in progress)
+
+On
+
+search to see if patient has family doctor listed in chart
+
+*Yes
+
+** present dates for that doctor
+
+*No
+
+**revert to have a walk-in booking view
+
+Change form config to combine single and multi location booking
+
+All bookings except walk-in have to be done behind OTP
+
+Insurance (in progress)
+
+Collect Insurance Info
+
+Run Insurance Eligibility Check
+
+Waystar
+
+Third-party
+
+Payment (in progress)
+
+Show Invoice
+
+Collect Payment
+
+Back-end
+
+Integration w/ TSYS
+
+Language (in progress)
+
+Choose Language
+
+Back-end
+
+Depending on the language, run translation engine
+
+PDF Consents (in progress)
+
+Back-end
+
+Converting final signed doc to PDF
+
+Save the PDF to the EMRs
+
+Basic Elements (currently Form Elements)
+
+Dropdown
+
+Radio
+
+Multiple Choice
+
+Heading
+
+Paragraph Text
+
+Input Field
+
+Text Area
+
+Phone Number
+
+Date of Birth
+
+File Upload
+
+Image Upload
+
+Family Doctor Booking
+
+Fields
+
+Title (text)
+
+Schedule Template Code (text)
+
+Walk-in Selection (dropdown)
+
+Next available
+
+Patient choice
+
+Show failed appointment creation message (boolean)
+
+Form Preview
+
+EMR API Used
+Break it down by each element first, and then break it down by the EMR
+
+Oscar
+
+Base URL: https://phelix.kai-oscar.com/oscar
+
+Patient search: /ws/services/demographics/search
+
+FormBuilder Component: Smart ID Verification
+
+FormBuilder Component: Walk-In Appointment 
+
+Get Patient By ID: /ws/services/demographics/<patient_id>
+
+FormBuilder Component: Smart ID Verification
+
+FormBuilder Component: Walk-In Appointment 
+
+Create New Patient: /ws/services/demographics/ 
+
+FormBuilder Component: Walk-In Appointment
+
+ 
+
+INFINITT
+
+Base URL: https://akuminapi.infinittna.com
+
+Patient Search: /R4/Patient
+
+FormBuilder Component: Smart ID Verification
+
+Location Search: /R4/Location/getLocation
+
+FormBuilder Component: Multi-Location Booking
+
+Available Month Search: /R4/Phelix/getAvailableMonths
+
+FormBuilder Component: Multi-Location Booking
+
+Available Day Search: /R4/Phelix/getAvailableDays
+FormBuilder Component: Multi-Location Booking
+
+Slot Search: /R4/Slot
+
+FormBuilder Component: Multi-Location Booking
+
+ 
+
+Accuro
+
+Base URL: https://q1-accapi.accuroemr.com
+
+Patient Search: /rest/v1/provider-portal/patients/search
+
+FormBuilder Component: Smart ID Verification
+
+Meeting Notes
+Date
+
+Notes
+
+7th Apr 2021
+
+Decouple all Elements so they can work in any combination
+
+First step is always going to be Patient Verification
+
+No EMR Search
+
+Basic EMR Search
+
+Patient found
+
+record the patient and move on (just inform we have found a match)
+
+Patient not found
+
+Option to create/register a new patient
+
+EMR Search + OTP
+
+Add frontend and backend validation so the first element is always patient verification
+
+Add any steps/elements which work independently
+
+EMR integrations within each of the elements
+
+Patient Appointment
+
+Primary
+
+Walkin and family doc
+
+Speciality
+
+single and multi loc
+
+Form Submission
+
+Binding all events with form submission
+
+Form submission timeout after 20mins of inactivity
+
+COVID screener in the middle (low priority)
+
+Design
+
+info bubble for each element
+
+navigate to the rest of the app
+
+Ending the session/access token is only when the user logs out of the account
+
+Better solution in the future
+
+ 
+
+ 
+
+Old Discussion (ignore)
+Form Builder
+
+Clinical Elements
+
+Medication Capture
+
+Front-end
+
+Designs - Phelix.AI 
+
+https://www.medisafeapp.com/
+
+Back-end
+
+Need to find the DB for Search
+
+NDC
+
+RxNorm
+
+Upload to Oscar (via Integration Interface)
+
+Features
+
+Medication List
+
+Problem List
+
+Medication Adherence (encounter notes in patient chart)
+
+Report Side Effects (encounter notes in patient chart)
+
+Two types of form can be created:
+
+Fresh form from scratch
+
+From form template
+
+When creating form from templates, select a template from dropdown
+
+Click edit button to edit specific form from this page.
+
+
+This will led a page looks like this:
+
+
+Here’s marked boxes are described below
+
+Form name and save buttons
+
+Form template selection and form name edit field
+
+Main design settings and section management (Create, edit, delete)
+
+Form’s global settings
+
+Form elements on selected section (elements must be selected from 6,7,8,9)
+
+List of Basic elements
+
+List of Logical elements
+
+List of Smart elements
+
+List of Clinical elements
+
+Form url/link and preview
+
+Form settings has x parts.
+
+Form name
+
+Form template selection
+
+Section management
+
+Design settings
+
+Global settings
+
+ 
+
+
+ 
+
+There should be at least one section in each form.
+
+Sections can be organized by dragging and dropping in configuration.
+
+Sections are basically 2 types
+
+Normal
+
+Logical
+
+Logical section is a collections of multiple normal steps.
+
+Configuration:
+
+Preview:
+
+ 
+
+Form elements can be dragged and dropped. Also they can be added by clicking the left most button (green colored):
+
+
+ 
+
+are basically 4 types.
+
+Basic elements (currently Form elements)
+
+
+Logical elements
+
+
+Smart elements
+
+
+Clinical elements 
+
+
+ 
+
+Basic verify patient id, 
+Configuration:
+Fields can be showed or not by using blue toggle button.
+If EMR Search is enabled, EMR patient search will be enabled.
+
+
+
+Preview:
+
+
+Basic verify patient id v2 (under development)
+
+Single location booking
+Preview:
+a)
+
+
+b) date selection:
+
+
+c) Verified:
+
+d) Failed:
+
+Dropdown
+Configuration:
+
+Preview:
+
+Radio
+Configuration:  Same as dropdown
+Preview:
+
+Multiple choice
+Configuration:  Same as dropdown
+Preview:
+
+Heading
+
+Paragraph
+
+Input text
+
+Textarea
+Same as input text (9). But preview will be text box
+
+Phone number
+Same as input text (9). But can only be entered phone number
+
+Date of birth
+
+File upload
+
+Image upload
+Same as file upload (13) but only images can be uploaded
+
+Multi section Screen
+Let’s assume a form has 3 sections:
+- Section A
+- Section B
+- Section C
+In this section patients will be asked one or multiple questions, but only same options will be showed (currently “Yes“, “No”, “Maybe”)
+
+According to patient’s response, he/she will be redirect to another sections or another element of another section.
+Logic can be set like this:
+if the response is YES/NO/MAYBE of ANY/ALL questions, then jump to selected section of selected elements
+Otherwise jump to selected section of selected elements
+
+Also, in addition along with section/element jump, custom flags or screen can be set up.
+
+Section/Element: jump to specific section or element according to response.
+Custom flag: Set a value into database according to response
+Screen: Show a customized screen according to response.
+
+
+
+
+All configurations should be set before save. (After this element setup, sudden section configuring might break the whole app during response)
+Next step button is customized with this element.
+
+Radio button
+This element is almost same as the previous. Differences with the previous element are:
+
+Options/Response value can be changed.
+
+Logic will be set by the response of each question.
+eg: if response of this question is that, then go there.
+
+Flags and screens are not available
+
+Prioritized logic from top to bottom.
+
+All configurations should be set before save. (After this element setup, sudden section configuring might break the whole app during response)
+Next step button is customized with this element.
+
+ 
+
+Verify Patient id
+Configuration: Add photo can be enabled or disabled.
+Preview: 
+a) Enter details
+
+
+b) Enter OTP:
+
+
+c) Verified
+
+
+d) Failed
+
+
+ 
+Next step button is customized with this element.
+
+Walk in appointment
+Configuration:
+
+
+
+Preview:
+
+
+Next step button is customized with this element. Next step can be accessed by selecting an appointment.
+Dependency: Required Basic Verify Patient ID before this element.
+
+Multi location booking
+Preview:
+a) address
+Allow location access from top left corner (general notification if mobile device)
+
+
+Address input field
+
+
+Type to see location options. Location will be selected from the dropdown
+
+
+Select clinic to book appointment.
+
+Then select date and time to complete booking.
+
+Response if no clinics found.
+
+Preferred pharmacy
+
+Insurance
+Insurance can be two types:
+ - Self
+ - Non-self
+For non-self insurance. Relation with insurance holder should be mentioned
+
+Preview:
+a) Insurance information
+
+
+b) insurance verified
+
+
+Failed:
+
+Next step button is customized with this element.
+
+Payment
+Preview:
+a) To be paid receipt
+
+b) Payment information
+
+c) Payment success
+
+Failed
+
+Language
+Configuration:
+
+Language can be added from dropdown and be removed.
+
+Preview:
+
+
+Next step button is customized with this element.
+
+Signature
+Preview:
+
+Signature can be uploaded as image by this sign board (use mouse of finger if mobile). For example:
+
+
+Pdf consent
+
+Configuration:
+
+Click this button to upload a new file
+
+After a successful upload this will look like this
+
+Click on the name to upload another file
+
+Click on + Add signing Area to add area of sign, date etc.
+
+Drag and create rectangle to select area. Then mark the area from the dropdown
+
+Rectangle area cannot be moved. It needs to be remove and create again.
+
+Preview:
+
+Blue bordered blank boxes are signature field. Click to add your signature.
+
+Top section is raw sign board, and bottom has some pre populated signature using handwriting fonts. Type your name or initials to generate signature. 
+
+ Text field (TBD)
+
+ 
+
+Current
+
+One set of checkpoints for all clinic accounts
+
+Future
+
+Each clinic should be able to set their own checkpoints
+
+In Auth MX (handling auth, issuing tokens) - Syed
+
+Backend
+
+updated to include refresh token (in case it gets expired) every 15 mins
+
+need to add a DB which saves the token for each clinic
+
+Frontend
+
+at the time of login, auth mx will be called and stored in local, which expires in 15mins
+
+every time we encounter 401, frontend pulls/refreshes a new token
+
+
+ 
+
