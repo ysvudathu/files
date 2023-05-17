@@ -1,0 +1,3574 @@
+Integration - Oscar
+
+
+Created by Mayank (Unlicensed)
+Last updated: Jul 11, 20212 min read
+11 people viewed
+DBs = Central DB (phelix web app DB ), microservice DBs
+
+microservices involved in oscar integration  
+
+appointment service  
+
+appointment ops 
+
+patient management service 
+
+partner service  
+
+emr integration service 
+
+web app integration util service 
+
+checkpoint service 
+
+notification service 
+
+telecom service 
+
+service 
+
+DB 
+
+DB type
+
+role
+
+appointment service  
+
+yes (appointment_db)
+
+SQL
+
+appointment business logic handling
+
+appointment ops
+
+yes (appointment_ops_db)
+
+SQL
+
+handles operations of appointment sync and real time sync process
+
+patient management service 
+
+yes (patient_db)
+
+SQL
+
+handles patient related details and business logic
+
+partner service  (referred as clinic in phelix web app)
+
+yes (partner_db)
+
+SQL
+
+handles partner details and related business logic
+
+emr integration service 
+
+NO
+
+ 
+
+handle integration with all emr and  related business logic
+
+web app integration util service 
+
+phelix web app DB 
+
+SQL
+
+handle all interactions with phelix web app central DB 
+
+checkpoint service 
+
+yes (checkpoint_db)
+
+Mongo DB
+
+handles checkpoint related logics
+
+notification service 
+
+yes (notification_db)
+
+Mongo DB 
+
+handles notification related logic 
+
+telecom service 
+
+NO
+
+ 
+
+handles integration with telecom infra and telnyx 
+
+Create appointment in phelix it should reflect in microservice DB and oscar UI 
+
+Updated appointment should be reflected in microservice and oscar UI 
+
+appointment which are created/updated in oscar should reflect in phelix and microservice DB 
+
+Sync appointment
+
+sync by time range (specified start and end date)
+
+will fetch details from oscar to phelix for given start and end date 
+
+will create patient if not exist in phelix and microservice 
+
+ it should show how many appointment has been synced and whats the status of sync process 
+
+real time sync 
+
+will fetch details from oscar to phelix from current time with specific limit after configuration for oscar integration is completed on UI (phelix web app UI)
+
+ will fetch details from oscar to phelix for given start and end date 
+
+will create patient if not exist in phelix and microservice 
+
+once these sync is tested, need to test all the other workflows which are using this microservice
+
+virtual waiting room and way finding (update)
+
+form builder
+
+integrated check-ins (update)
+
+walk-in bookings (create)
+
+IVR
+
+create and update appointments
+
+Team Meetings
+ 
+
+ 
+
+Mar 12, 2021
+
+TODO
+
+@Aditya Pancholi (Unlicensed)
+
+message logging api creation in web app integration util service
+
+notifications api creation in web app integration util service
+
+check for issues in push and slot selection
+
+@Kailash Shaw (Unlicensed)
+
+Deploy, time based builder in dev
+
+test delayed message part
+
+@Mike Mohd
+
+test pull flow for error scenarios
+
+fixed mapping for web app appointment mentioned by Aditya
+
+finish wayfinder sms, deploy on dev
+
+Test and deploy time based builder (corner of hope , if @Kailash Shaw (Unlicensed) is not available)
+
+ 
+
+ 
+
+Oscar - REST API
+
+
+
+
+Created by Mayank (Unlicensed)
+Last updated: Apr 28, 2021 by Hassaan Ahmed7 min read
+14 people viewed
+WELL’s REST API documentation:
+
+Well Health Technologies 
+pw: well@2020
+
+
+Contents
+
+Introduction. 2
+
+About 2
+
+Oscar EMR. 2
+
+Blockhealth(Phelix) 2
+
+REST API 2
+
+Pre-Requisites 3
+
+Implementation. 3
+
+Authorization. 6
+
+Obtaining Request Token. 7
+
+Obtaining User Authorization. 8
+
+Obtaining an Access Token. 11
+
+Fetching Demographics 12
+
+Fetch Patient by Patient id: 13
+
+Searching Patient 15
+
+Fetching Providers 17
+
+Fetching Appointments. 20
+
+Posting Appointments 21
+
+Authorization Status Check. 24
+
+References 25
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Introduction
+The document is created with an intent to give insight into Oscar EMR REST API working.
+
+The document will cover the different endpoints supported by Oscar which are of relevance for BlockHealth. This document will only cover the following topics
+
+Endpoints available
+
+Request format for each endpoint
+
+Response format for each endpoint.
+
+Data types & character limits.
+
+The document will cover topics which are  independent of the technology used to implement API.
+
+Readers are free to use any programming language to implement the workflow in this document.
+
+ 
+
+About
+Oscar EMR
+OSCAR McMaster is a web-based electronic medical record (EMR) system initially developed for academic primary care clinics. It has grown into a comprehensive EMR and billing system used by many doctor's offices and private medical clinics in Canada and other parts of the world.
+
+ 
+
+Blockhealth(Phelix)
+By combining machine vision, natural language, and voice tools - Phelix can seamlessly automate most repetitive back office tasks, on any EMR or record system, winning back time that can be spent directly on patient care.
+
+ 
+
+Phelix helps sort and process incoming faxes, populate patient profiles, extract disease or medication lists, transcribe reports, provides triage support, automate patient booking calls, appointment reminders, billing automation, prior authorizations and more.
+
+ 
+
+REST API
+A RESTful API is an application program interface (API) that uses HTTP requests to GET, PUT, POST and DELETE data.
+
+A RESTful API -- also referred to as a RESTful web service -- is based on representational state transfer (REST) technology, an architectural style and approach to communications often used in web services development.
+
+ 
+
+Pre-Requisites
+In order to better understand this document users are required to have knowledge of the following topics
+
+·       REST API
+
+·       HTTP Protocol
+
+·       Oauth
+
+ 
+
+Implementation
+The section below details the steps involved in using REST API for Oscar.
+
+Registration
+
+For any application to be able to implement REST API for Oscar will have to register the application in the EMR.
+
+The steps to be followed are as below
+
+Login to Oscar EMR and click on Admin tab as highlighted in figure below
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Next, click on 
+
+IntegrationREST Clients
+
+ 
+
+ 
+
+To Register a new application or client , click on 
+
+Add New
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Enter the name of the Client or application and add the callback url in URI. Click on 
+
+Add Client. If there is no callback url then insert “oob”.
+
+ 
+
+ 
+
+ 
+
+This will register the application and will generate Client Key & Client secret key which will be used for token exchange
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Once the application is registered, we can start using the API.
+
+ care.
+
+Authorization:
+
+In order to exchange the data with Oscar, the client will have to identify and authorize itself. Oscar EMR implements Oauth 1.0 for authorization.
+
+Note: Please visit https://oauth.net/core/1.0/  to learn about Oauth 1.0
+
+OAuth Authentication is done in three steps:
+
+The Consumer obtains an unauthorized Request Token.
+
+The User authorizes the Request Token.
+
+The Consumer exchanges the Request Token for an Access Token.
+
+helps sort and process incoming faxes, populate patient profiles, extract disease or medication lists, transcribe reports, provides triage support, automate patient booking calls, appointment reminders, billing automation, prior authorizations and more.
+
+ 
+
+Obtaining Request Token
+The client must call the initiate authentication endpoint to generate a temporary token
+
+Endpoint: {base url}/ws/oauth/initiate
+
+e.g https://104.196.58.23:8080/oscar/ws/oauth/initiate
+
+ 
+
+The request format must be as follows
+
+POST /oscar/ws/oauth/initiate
+
+Authorization: OAuth oauth_consumer_key="518kxdyx384w7q2o",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560686916",oauth_nonce="7u9809hkvf",oauth_callback="oob",oauth_version="1.0",oauth_signature="7oc92hbk3pe4lwhi%26"
+
+Content-Type: application/x-www-form-urlencoded
+
+User-Agent: PostmanRuntime/7.15.0
+
+Accept: */*
+
+Cache-Control: no-cache
+
+Postman-Token: 94754c81-c076-4102-92a7-4e285b343816
+
+Host: 104.196.58.23:8080
+
+cookie: JSESSIONID=5C8172E10F914BB858782F8CF27D2DE6
+
+accept-encoding: gzip, deflate
+
+content-length:
+
+Connection: keep-alive
+
+ 
+
+oauth_consumer_key:
+
+The Consumer Key.
+
+oauth_signature_method:
+
+The signature method the Consumer used to sign the request.
+
+oauth_signature:
+
+The signature as defined in Signing Requests.
+
+oauth_timestamp:
+
+As defined in Nonce and Timestamp.
+
+oauth_nonce:
+
+As defined in Nonce and Timestamp.
+
+oauth_version:
+
+OPTIONAL. If present, value MUST be 1.0 . Service Providers MUST assume the protocol version to be 1.0 if this parameter is not present. Service Providers’ response to non-1.0 value is left undefined.
+
+ 
+
+ 
+
+Response to the request is
+
+HTTP/1.1 200
+
+status: 200
+
+Server: Apache-Coyote/1.1
+
+Set-Cookie: JSESSIONID=F4D6ED4EB750F4EA155092FBE63B1FBE; Path=/oscar/; HttpOnly
+
+Date: Sun, 16 Jun 2019 12:09:05 GMT
+
+Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+
+Transfer-Encoding: chunked
+
+oauth_token=d4a48e33-28ee-4ddd-9429-ac7022affd36&oauth_callback_confirmed=true&oauth_token_secret=afab4f09-03ec-4f86-b413-9430a7a5cc4a
+
+ 
+
+Obtaining User Authorization
+The Consumer cannot use the Request Token until it has been authorized by the User. Obtaining User authorization includes the following steps:
+
+ 
+
+Once the token is received the application will redirect the user to
+
+ 
+
+https://{base url}/ws/oauth/authorize?oauth_token=?
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+An example to look at is below
+
+ 
+
+http://104.196.58.23:8080/oscar/ws/oauth/authorize?oauth_token=d4a48e33-28ee-4ddd-9429-ac7022affd36
+
+ 
+
+ 
+
+The user will need to login with his/her credentials and authorize the token.
+
+ 
+
+Once the user authorizes the token, the user will be redirected to the callback url. The response will also have oauth_verfier which will be used in final token exchange.
+
+In the example, we have no callback url so oauth_verifier will be returned on the page.
+
+ 
+
+ 
+
+ 
+
+Obtaining an Access Token
+The Request Token and Token Secret MUST be exchanged for an Access Token and Token Secret.
+
+To request an Access Token, the Consumer makes an HTTP request to the Service Provider’s Access Token URL
+
+The endpoint to call in this case is
+
+http://{base url}/ws/oauth/token
+
+Let’s look at a sample request
+
+The endpoint we call is http://104.196.58.23:8080/oscar/ws/oauth/token
+
+The http request format is as follows
+
+POST /oscar/ws/oauth/token
+
+Authorization: OAuth oauth_consumer_key="518kxdyx384w7q2o",oauth_token="d4a48e33-28ee-4ddd-9429-ac7022affd36",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560689125",oauth_nonce="7u9809hkvz",oauth_verifier="80cd0890-2bbd-4663-93c4-5af89fc356f6",oauth_version="1.0",oauth_callback="oob",oauth_signature="7oc92hbk3pe4lwhi%26afab4f09-03ec-4f86-b413-9430a7a5cc4a"
+
+User-Agent: PostmanRuntime/7.15.0
+
+Accept: */*
+
+Cache-Control: no-cache
+
+Postman-Token: dc6995b5-7802-483e-9ca4-5e00002fa939
+
+Host: 104.196.58.23:8080
+
+cookie: JSESSIONID=F4D6ED4EB750F4EA155092FBE63B1FBE
+
+accept-encoding: gzip, deflate
+
+content-length:
+
+Connection: keep-alive
+
+The request is very similar to the request initiation call, the only change is the addition of oauth_verifier.
+
+Response for the call looks as below
+
+HTTP/1.1 200
+
+status: 200
+
+Server: Apache-Coyote/1.1
+
+Date: Sun, 16 Jun 2019 12:47:49 GMT
+
+Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+
+Transfer-Encoding: chunked
+
+oauth_token=f464cacf-430a-446f-b040-0604cb781899&oauth_token_secret=40bd9502-bd3b-4dbd-b012-215a059942dd
+
+The token and secret key received on this call is used for access and exchange of API calls.
+
+ 
+
+oauth_consumer_key:
+
+The Consumer Key.
+
+oauth_signature_method:
+
+The signature method the Consumer used to sign the request.
+
+oauth_consumer_key:
+
+The oauth_verifier MUST be associated with the OAuth consumer and OAuth request token.
+
+ 
+
+oauth_signature:
+
+The signature as defined in Signing Requests.
+
+oauth_timestamp:
+
+As defined in Nonce and Timestamp.
+
+oauth_nonce:
+
+As defined in Nonce and Timestamp.
+
+oauth_version:
+
+OPTIONAL. If present, value MUST be 1.0 . Service Providers MUST assume the protocol version to be 1.0 if this parameter is not present. Service Providers’ response to non-1.0 value is left undefined.
+
+Note:The token never expires and can be used indefinitely.
+
+ 
+
+These steps mark the completion of authorization process. All API calls to exchange data will use the access token, access secret key and oauth verifier token.
+
+ 
+
+Fetching Demographics
+Oscar provides following endpoints for demographics
+
+·       /demographics/{id} : Pulls demographic for a single patient and takes patient id as the input
+
+·       /demographics/search : Allows to search for patient on last name, first name, last name+firstname, HIN, dob,Phone, address and patient id
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Fetch Patient by Patient id:
+This example illustrates an example of pulling demographics by patient id
+
+Endpoint: http://104.196.58.23:8080/oscar/ws/services/demographics/128
+
+Where 128 is the internal Oscar Patient id.
+
+The response of the call is shown below
+
+ 
+
+ 
+
+ 
+
+The Raw HTTP Request looks as below
+
+GET /oscar/ws/services/demographics/128
+
+Authorization: OAuth oauth_consumer_key="518kxdyx384w7q2o",oauth_token="24c6348c-e434-42d0-8fb9-90156ae6bb44",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560706377",oauth_nonce="yv52ox4pub",oauth_verifier="337b8a3e-fa7c-4859-9d51-3b60f080972b",oauth_version="1.0",oauth_callback="oob",oauth_signature="7oc92hbk3pe4lwhi%26b9096a30-eaae-4402-9c2a-10f0da16c032"
+
+User-Agent: PostmanRuntime/7.15.0
+
+Accept: */*
+
+Cache-Control: no-cache
+
+Postman-Token: 1f18a547-22c5-43bc-846e-5d498338d88f
+
+Host: 104.196.58.23:8080
+
+cookie: JSESSIONID=A49F364E8F663B72325D78CD0F8CF7F2
+
+accept-encoding: gzip, deflate
+
+Connection: keep-alive
+
+The response for the request is as below
+
+HTTP/1.1 200
+
+status: 200
+
+Server: Apache-Coyote/1.1
+
+Date: Sun, 16 Jun 2019 17:34:04 GMT
+
+Content-Type: application/json;charset=UTF-8
+
+Transfer-Encoding: chunked
+
+{"demographicNo":128,"address":{"province":null,"postal":null,"city":null,"address":null},"phone":null,"alternativePhone":null,"patientStatus":"AC","patientStatusDate":"2019-02-14","rosterStatus":null,"providerNo":null,"myOscarUserName":null,"hin":null,"ver":null,"dateOfBirth":865468800000,"dobYear":"1997","dobMonth":"06","dobDay":"05","sex":"F","sexDesc":"Female","dateJoined":"2019-02-14","familyDoctor":"<rdohip></rdohip><rd></rd>","firstName":"TEST1","lastName":"TEST1","hcRenewDate":null,"pcnIndicator":null,"endDate":null,"hcType":null,"chartNo":null,"email":null,"effDate":null,"rosterDate":null,"rosterTerminationDate":null,"rosterTerminationReason":null,"links":null,"alias":null,"previousAddress":{"province":null,"postal":null,"city":null,"address":null},"children":null,"sourceOfIncome":null,"citizenship":null,"sin":null,"anonymous":null,"spokenLanguage":null,"activeCount":1,"hsAlertCount":0,"displayName":null,"provider":null,"lastUpdateUser":"999998","lastUpdateDate":1550116579000,"title":null,"officialLanguage":null,"countryOfOrigin":null,"newsletter":null,"nurse":null,"resident":null,"alert":null,"midwife":null,"notes":null,"waitingListID":null,"waitingListNote":null,"onWaitingListSinceDate":null,"age":{"days":11,"months":0,"years":22},"admissionProgramId":null,"demoContacts":[],"demoContactPros":[],"extras":[],"doctors":[{"providerNo":"999998","lastName":"oscardoc","firstName":"doctor","name":"oscardoc, doctor","comments":"","phone":"","billingNo":"","workPhone":"","address":{"province":null,"postal":null,"city":null,"address":""},"team":"","enabled":true,"providerType":"","sex":null,"ohipNo":"123456","specialty":"","dob":"0001-01-01","hsoNo":"","providerActivity":"","rmaNo":"","signedConfidentiality":-62135769600000,"practitionerNo":"","practitionerNoType":null,"email":"","title":"","lastUpdateUser":"","lastUpdateDate":1381017600000},{"providerNo":"2","lastName":"Doctor1","firstName":"Doctor1","name":"Doctor1, Doctor1","comments":"","phone":"","billingNo":"","workPhone":"","address":{"province":null,"postal":null,"city":null,"address":""},"team":"","enabled":true,"providerType":"","sex":null,"ohipNo":"","specialty":"","dob":null,"hsoNo":"","providerActivity":"","rmaNo":"","signedConfidentiality":null,"practitionerNo":"","practitionerNoType":null,"email":"","title":null,"lastUpdateUser":"999998","lastUpdateDate":1549727434000}],"nurses":[],"midwives":[],"referralDoctors":[{"id":1,"firstName":"Sam","lastName":"Spade","name":"Spade, Sam","professionalLetters":"FRCP","streetAddress":"123 Hearts way","phoneNumber":"613-234-3344","faxNumber":"613-234-3345","webSite":null,"emailAddress":null,"specialtyType":"Cardiology","eDataUrl":null,"eDataOscarKey":null,"eDataServiceKey":null,"eDataServiceName":null,"annotation":"He will investigate to the patients death","referralNo":null,"institutionId":0,"departmentId":0,"eformId":null}],"waitingListNames":[],"patientStatusList":[],"rosterStatusList":[]}
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Searching Patient
+Oscar allows patient search on one of the parameters Name, Phone, HIN, Address, DOB, ChartNo, DemographicNo
+
+We will look at an example of searching a patient by name
+
+Endpoint: http://104.196.58.23:8080/oscar/ws/services/demographics/search
+
+The search  parameters are part of the request body and the format is below
+
+{
+
+           
+
+           
+
+                        "type":"Name",
+
+                        "active":"True",
+
+                        "term":"Khan,Shanawaz",
+
+                        "integrator":"false",
+
+                        "outofdomain":"false"
+
+                       
+
+}
+
+ 
+
+Type: Search parameter and can be one of the values(Name, Phone, HIN, Address, DOB, ChartNo, DemographicNo)
+
+Active: true: search for active patients, false: search for active and inactive patient.
+
+Term: The search string
+
+Integrator & outofdomain will always be set to false
+
+ 
+
+Sample HTTP Request looks as below
+
+URL: http://104.196.58.23:8080/oscar/ws/services/demographics/search
+
+METHOD: POST
+
+[HEADERS]
+
+Authorization: OAuth oauth_consumer_key="brl6rc0byhw9n196",oauth_token="974e86d9-dc33-4101-81f2-69c05ca6846d",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560697280",oauth_nonce="1zygnucap",oauth_verifier="5c21b716-ea70-417e-8dac-2fddf694ddf9",oauth_version="1.0",oauth_signature="w2xp7ox85q2hg275%264fc1c4d3-7a8c-4d19-8bc4-c327a699e6b7"
+
+charset: UTF-8
+
+Content-Type: application/json
+
+[PARAMETERS]
+
+startIndex: 0
+
+itemsToReturn: 100
+
+[CONTENT]
+
+{"type":"Name","active":"True","term":"BH,BH","integrator":"false","outofdomain":"false"}
+
+ 
+
+Sample HTTP Response looks as
+
+ 
+
+{
+
+  "offset" : 0,
+
+  "limit" : 0,
+
+  "total" : 1,
+
+  "timestamp" : 1560697280545,
+
+  "content" : [
+
+    {
+
+      "demographicNo" : 377,
+
+      "lastName" : "BHtest10",
+
+      "firstName" : "BHtest10",
+
+      "chartNo" : "",
+
+      "sex" : "s",
+
+      "dob" : null,
+
+      "providerNo" : "",
+
+      "providerName" : null,
+
+      "rosterStatus" : null,
+
+      "patientStatus" : "",
+
+      "phone" : "",
+
+      "hin" : "3333333333",
+
+      "remoteFacilityId" : null,
+
+      "formattedDOB" : null
+
+    }
+
+  ],
+
+  "query" : null
+
+}
+
+ 
+
+Above example shows how to search by name. We can also do a search by HIN by just changing the type variable to HIN in the HTTP payload request.
+
+ 
+
+Fetching Providers
+ We can search for a provider by name using or pull a specific provider by passing the provider id
+
+Endpoints:
+
+/providerService/provider/{id}: Allows user to pull information of a specific provider where id is the Oscar internal provider id.
+
+/providerService/providers/search: Search provider by name.
+
+ 
+
+We will look at an example of searching provider by name
+
+The endpoint we call to search for provider is
+
+http://104.196.58.23:8080/oscar/ws/services/providerService/providers/search
+
+ 
+
+The search criteria  passed as the HTTP request body and the format is as shown
+
+{
+
+      "searchTerm":"oscardoc",
+
+      "active":"true"
+
+}
+
+ 
+
+And the response to the request is as shown below
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+{
+
+   "offset":0,
+
+   "limit":0,
+
+   "total":1,
+
+   "timestamp":1560239722346,
+
+   "content":[
+
+      {
+
+         "providerNo":"999998",
+
+         "lastName":"oscardoc",
+
+         "firstName":"doctor",
+
+         "name":"oscardoc, doctor",
+
+         "comments":"",
+
+         "phone":"",
+
+         "billingNo":"",
+
+         "workPhone":"",
+
+         "address":{
+
+            "province":null,
+
+            "postal":null,
+
+            "city":null,
+
+            "address":""
+
+         },
+
+         "team":"",
+
+         "enabled":true,
+
+         "providerType":"",
+
+         "sex":null,
+
+         "ohipNo":"123456",
+
+         "specialty":"",
+
+         "dob":"0001-01-01",
+
+         "hsoNo":"",
+
+         "providerActivity":"",
+
+         "rmaNo":"",
+
+         "signedConfidentiality":-62135769600000,
+
+         "practitionerNo":"",
+
+         "practitionerNoType":null,
+
+         "email":"",
+
+         "title":"",
+
+         "lastUpdateUser":"",
+
+         "lastUpdateDate":1381017600000
+
+      }
+
+   ],
+
+   "query":null
+
+}
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Raw HTTP request is as shown
+
+URL: http://104.196.58.23:8080/oscar/ws/services/providerService/providers/search
+
+METHOD: POST
+
+[HEADERS]
+
+Authorization: OAuth oauth_consumer_key="brl6rc0byhw9n196",oauth_token="94c31def-296f-47fc-9df1-f3d529b1faf8",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560239721",oauth_nonce="2i5cuvs50c",oauth_verifier="b6079888-a377-4c64-97d5-e84f72b68e89",oauth_version="1.0",oauth_signature="w2xp7ox85q2hg275%265592d93b-adb7-4fb2-84e7-acd9c29a7553"
+
+charset: utf-8
+
+Content-Type: application/json
+
+[PARAMETERS]
+
+[CONTENT]
+
+{
+
+         "searchTerm":"oscardoc",
+
+         "active":"true"
+
+}
+
+ 
+
+ 
+
+Raw HTTP Response is as shown
+
+ 
+
+{"offset":0,"limit":0,"total":1,"timestamp":1560239722346,"content":[{"providerNo":"999998","lastName":"oscardoc","firstName":"doctor","name":"oscardoc, doctor","comments":"","phone":"","billingNo":"","workPhone":"","address":{"province":null,"postal":null,"city":null,"address":""},"team":"","enabled":true,"providerType":"","sex":null,"ohipNo":"123456","specialty":"","dob":"0001-01-01","hsoNo":"","providerActivity":"","rmaNo":"","signedConfidentiality":-62135769600000,"practitionerNo":"","practitionerNoType":null,"email":"","title":"","lastUpdateUser":"","lastUpdateDate":1381017600000}],"query":null}
+
+ 
+
+ 
+
+ 
+
+Fetching Appointments
+Oscar provides following options to pull appointments
+
+·       /schedule/day/{date} : Pulls appointment for a date for all providers
+
+·       /schedule/getAppointment : Pulls a specific appointment when called with appointment id, else pulls all appointments. The system should never call this endpoint without the appointment id.
+
+·       /schedule/fetchMonthly/{providerNo}/{year}/{month}: Pulls appointment for specified month for a provider.
+
+We will look at an example of how to pull appointments for a date for all providers.
+
+ 
+
+The endpoint we call is : http://104.196.58.23:8080/oscar/ws/services/schedule/day/2019-05-28
+
+The response to this call is:
+
+{
+
+   "template":"patientlist/patientList1.jsp",
+
+   "patients":[
+
+      {
+
+         "demographicNo":310,
+
+         "appointmentNo":19,
+
+         "name":"HASAN, AHMED",
+
+         "status":"t",
+
+         "startTime":"05:00 PM",
+
+         "reason":"",
+
+         "date":1559062800000
+
+      },
+
+      {
+
+         "demographicNo":312,
+
+         "appointmentNo":20,
+
+         "name":"HASAN, AHMED",
+
+         "status":"t",
+
+         "startTime":"05:00 PM",
+
+         "reason":"",
+
+         "date":1559062800000
+
+      }
+
+   ]
+
+}
+
+ 
+
+ 
+
+ 
+
+ 
+
+Raw HTTP Request looks like
+
+ 
+
+URL: http://104.196.58.23:8080/oscar/ws/services/schedule/day/2019-05-28
+
+METHOD: GET
+
+ 
+
+[HEADERS]
+
+Authorization: OAuth oauth_consumer_key="brl6rc0byhw9n196",oauth_token="30a9a93d-a479-41f9-a9dc-a14d725f9e65",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560068948",oauth_nonce="k4404lc2dx",oauth_verifier="cf2eee5f-c16e-461d-9a82-f434975ddd31",oauth_version="1.0",oauth_signature="w2xp7ox85q2hg275%26fd115507-1c8d-45da-bc27-01cf5336fe90"
+
+Content-Type: application/json
+
+ 
+
+[PARAMETERS]
+
+ 
+
+[CONTENT]
+
+ 
+
+ 
+
+Posting Appointments
+The endpoint to post an appointment is /schedule/add
+
+Let’s look at an example of how to post appointment.
+
+The endpoint we call to post appointment is
+
+http://104.196.58.23:8080/oscar/ws/services/schedule/add
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+The payload format for posting an appointment is as shown
+
+ 
+
+{ 
+
+         "providerNo":2,
+
+         "demographicNo":310,
+
+         "name":"HASAN, AHMED",
+
+         "status":"t",
+
+         "startTime":"16:00",
+
+         "reason":"",
+
+         "duration":"15",
+
+         "appointmentDate":"2019-06-10"
+
+     
+
+}
+
+ 
+
+Where providerNo: Internal provider id in Oscar
+
+demographicNo: Patient internal id in Oscar
+
+name: Patient Name
+
+status: Appointment Status
+
+startTime: Appointment Start time.
+
+Reason: Appointment reason, this is a numerical value which is the internal id for the reason in Oscar.
+
+Duration: Duration of the appointment
+
+appointmentDate: Date of appointment.
+
+ 
+
+As we see above that we need to pass internal id for patient, provider, reason & status so there may have to call some additional endpoints before we post the appointment
+
+The endpoints which we need to call before posting appointments are
+
+Search provider by name: Covered in document above
+
+Search provider by Patient: Covered in document above.
+
+Status can be pre-synced with the EMR using the endpoint 
+
+/schedule/statuses
+
+There is no endpoint to sync reason and will have to be synced by other means.
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Raw HTTP Request to post appointment is shown below
+
+ 
+
+URL: http://104.196.58.23:8080/oscar/ws/services/schedule/add
+
+METHOD: POST
+
+ 
+
+[HEADERS]
+
+Authorization: OAuth oauth_consumer_key="brl6rc0byhw9n196",oauth_token="30a9a93d-a479-41f9-a9dc-a14d725f9e65",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560076235",oauth_nonce="o8csvzik5p",oauth_verifier="cf2eee5f-c16e-461d-9a82-f434975ddd31",oauth_version="1.0",oauth_signature="w2xp7ox85q2hg275%26fd115507-1c8d-45da-bc27-01cf5336fe90"
+
+Content-Type: application/json
+
+ 
+
+[PARAMETERS]
+
+ 
+
+[CONTENT]
+
+{ 
+
+         "providerNo":2,
+
+         "demographicNo":310,
+
+         "name":"HASAN, AHMED",
+
+         "status":"t",
+
+         "startTime":"16:00",
+
+         "reason":"",
+
+         "duration":"15",
+
+         "appointmentDate":"2019-06-10"
+
+     
+
+}
+
+ 
+
+The response to appointment posting is
+
+ 
+
+{
+
+   "appointment":{
+
+      "id":36,
+
+      "providerNo":"2",
+
+      "appointmentDate":1560182400000,
+
+      "startTime":1560182400000,
+
+      "endTime":1560183240000,
+
+      "name":"HASAN, AHMED",
+
+      "demographicNo":310,
+
+      "programId":0,
+
+      "notes":null,
+
+      "reason":"",
+
+      "location":null,
+
+      "resources":null,
+
+      "type":null,
+
+      "style":null,
+
+      "billing":null,
+
+      "status":"t",
+
+      "importedStatus":null,
+
+      "createDateTime":1560076234127,
+
+      "updateDateTime":1560076234130,
+
+      "creator":"999998",
+
+      "lastUpdateUser":"999998",
+
+      "remarks":"",
+
+      "urgency":null,
+
+      "creatorSecurityId":null,
+
+      "bookingSource":null,
+
+      "reasonCode":null,
+
+      "demographic":null,
+
+      "provider":null
+
+   },
+
+   "statuses":null,
+
+   "types":null,
+
+   "reasons":null,
+
+   "appointments":null
+
+}
+
+ 
+
+ 
+
+Authorization Status Check
+ 
+
+We can also check if the token session is valid
+
+The endpoint to check for valid session is /status/checkIfAuthed
+
+Let’s look at an example for this one
+
+The endpoint url we call is
+
+http://104.196.58.23:8080/oscar/ws/services/status/checkIfAuthed
+
+ 
+
+The response to this request is
+
+{“success”:true,”message”:”999998”}
+
+ 
+
+ 
+
+Raw HTTP Request looks like
+
+URL: http://104.196.58.23:8080/oscar/ws/services/status/checkIfAuthed
+
+METHOD: GET
+
+ 
+
+[HEADERS]
+
+Authorization: OAuth oauth_consumer_key="518kxdyx384w7q2o",oauth_token="ae8cc17a-969e-4714-bfc9-a7a307873189",oauth_signature_method="PLAINTEXT",oauth_timestamp="1560804193",oauth_nonce="eamrnd3jwl",oauth_verifier="4912b5ff-00c2-4d29-becb-4a2b95df8606",oauth_version="1.0",oauth_callback="oob",oauth_signature="7oc92hbk3pe4lwhi%26b309885f-6eaa-4daf-b107-8f05c89793f2"
+
+charset: utf-8
+
+Content-Type: application/json
+
+ 
+
+[PARAMETERS]
+
+ 
+
+[CONTENT]
+
+ 
+
+ 
+
+ 
+
+References:
+
+https://oscaremr.atlassian.net/wiki/spaces/OS/pages/85727492/Web+Services 
+
+https://oauth1.wp-api.org/docs/basics/Auth-Flow.html 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Oscar - SOAP Appointment Workflow
+
+
+Created by Mayank (Unlicensed)
+Apr 27, 20217 min read
+6 people viewed
+Create Appointment Workflow
+
+Read Record from 
+
+records_patient_visit_integration table to post new appointments. Use this query to identify new appointments
+
+SELECT records_patient_visit_integration.id AS id ,
+
+records_patient_visit_integration.bh_demographic_id AS bh_demographic_id, records_patient_visit_integration.bh_appointment_no AS bh_appointment_no,
+
+records_patient_visit_integration.bh_provider_no AS bh_provider_no,
+
+records_patient_visit_integration.clinic_id AS clinic_id,
+
+records_patient_visit_integration.clinic_emr_type AS clinic_emr_type,
+
+records_patient_visit_integration.emr_demographic_id AS emr_demographic_id,
+
+records_patient_visit_integration.pat_fname AS pat_fname, records_patient_visit_integration.pat_lname AS pat_lname,
+
+-- records_patient_visit_integration.pat_dob AS pat_dob,
+
+IF(records_patient_visit_integration.pat_dob IS NULL
+
+or records_patient_visit_integration.pat_dob = ''
+
+or records_patient_visit_integration.pat_dob = '0000-00-00', '',
+
+records_patient_visit_integration.pat_dob) as pat_dob ,
+
+records_patient_visit_integration.pat_ohip AS pat_ohip,
+
+records_patient_visit_integration.pat_gender AS pat_gender,
+
+records_patient_visit_integration.pat_cell_phone records_patient_visit_integration.pat_home_phone records_patient_visit_integration.pat_work_phone
+
+AS pat_cell_phone, AS pat_home_phone, AS pat_work_phone,
+
+records_patient_visit_integration.pat_email_id AS pat_email_id,
+
+records_patient_visit_integration.pat_address AS pat_address,
+
+records_patient_visit_integration.emr_appointment_no AS emr_appointment_no,
+
+records_patient_visit_integration.emr_provider_no AS emr_provider_no,
+
+records_patient_visit_integration.dr_fname AS dr_fname, records_patient_visit_integration.dr_lname AS dr_lname,
+
+records_patient_visit_integration.dr_billing_num AS dr_billing_num,
+
+CONCAT (DATE_FORMAT(records_patient_visit_integration.appointment_date, '%Y-%m-%d'),'
+
+', DATE_FORMAT(records_patient_visit_integration.start_time, '%H:%i')) AS appointment_date,
+
+records_patient_visit_integration.start_time AS start_time,
+
+records_patient_visit_integration.end_time AS end_time,
+
+records_patient_visit_integration.visit_type AS visit_type,
+
+records_patient_visit_integration.is_confirmed AS is_confirmed,
+
+records_patient_visit_integration.appointment_status AS appointment_status,
+
+records_patient_visit_integration.notes AS notes,
+
+records_patient_visit_integration.reason AS reason,
+
+records_patient_visit_integration.location AS location,
+
+records_patient_visit_integration.status AS status,
+
+records_patient_visit_integration.match_type AS match_type, records_patient_visit_integration.created_by AS created_by,
+
+,
+
+records_patient_visit_integration.creator_id AS creator_id,
+
+records_patient_visit_integration.updated_datetime AS updated_datetime, records_patient_visit_integration.created_datetime AS created_datetime,
+
+records_patient_visit_integration.active AS active ,
+
+records_patient_visit_integration.operation_type AS operation_type
+
+TIMESTAMPDIFF(MINUTE,records_patient_visit_integration.start_time,records_patient_visit_integr
+
+ation.end_time) AS duration
+
+FROM records_patient_visit_integration
+
+where status='NEW'
+
+AND created_by='bh' and operation_type='NEW'
+
+AND clinic_id = {clinid ID};
+
+Once the record is read, update the status to SENT for the record.
+update records_patient_visit_integration set status='SENT' where id={last read record
+
+id}
+
+SOAP Authorization
+
+Call the endpoint: https://{base url}/oscar/ws/LoginService?wsdl
+
+Service Endpoint : {http://ws.oscarehr.org/}LoginWsService
+
+Port/Endpoint : {http://ws.oscarehr.org/}LoginWsPort
+
+Location URI: https://{base url}/oscar/ws/LoginService
+
+Create SOAP Envelope Request4
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:ws="http://ws.oscarehr.org/">
+
+
+<soapenv:Header/>
+
+<soapenv:Body>
+<ws:login>
+
+
+<!--Optional:-->
+<arg0>Username</arg0>
+
+
+<!--Optional:-->
+<arg1>Password</arg1>
+
+</ws:login>
+
+
+</soapenv:Body>
+
+</soapenv:Envelope>
+The receiving system will provide security key and Security password in response
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+
+<ns2:loginResponse>
+<return>
+
+<securityId>Key</securityId>
+
+<securityTokenKey>Token</securityTokenKey>
+
+</return>
+
+
+</ns2:loginResponse>
+
+    </soap:Body>
+</soap:Envelope>
+The key and token would be used for successive transactions 4. Transformations to be performed
+
+Generate CurrentDateTime in YYYY-MM-ddTHH:mm:ss format
+
+Create the Request SOAP Envelope as per below template
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.oscarehr.org/">
+
+<soapenv:Header>
+<wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd " xmlns:wsu="http://docs.oasis- http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd ">
+
+<wsse:UsernameToken wsu:Id="UsernameToken-C03EDBA2C1166A5E1215651941999542"> <wsse:Username>Key</wsse:Username>
+<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-
+
+username-token-profile-1.0#PasswordText">Token</wsse:Password> </wsse:UsernameToken>
+
+
+       </wsse:Security>
+   </soapenv:Header>
+
+   <soapenv:Body>
+      <ws:addAppointment>
+
+         <!--Optional:-->
+<arg0>
+
+
+         <!--Optional:-->
+<appointmentEndDateTime>2020-12-06T15:15:00</appointmentEndDateTime> <!--Optional:--> <appointmentStartDateTime>2020-12-06T15:00:00</appointmentStartDateTime> <!--Optional:-->
+
+
+         <billing></billing>
+
+         <!--Optional:-->
+<bookingSource>bh</bookingSource>
+<!--Optional:--> <createDateTime>2020-11-19T05:59:08Z</createDateTime> <!--Optional:-->
+
+<creator>bh</creator> <demographicNo>212</demographicNo> <!--Optional:-->
+<id></id>
+
+
+         <!--Optional:-->
+<lastUpdateUser></lastUpdateUser>
+
+
+         <!--Optional:-->
+<location>138 13th St East, Unit 320 North Vancouver BC V7L 0E5</location> <!--Optional:-->
+<name></name>
+<!--Optional:-->
+
+<notes>[Nov 17 - 10:05:59] Change required</notes> <programId></programId>
+<!--Optional:-->
+<providerNo>1</providerNo>
+
+
+         <!--Optional:-->
+
+         <reason></reason>
+
+         <!--Optional:-->
+
+         <remarks></remarks>
+
+         <!--Optional:-->
+
+         <resources></resources>
+
+         <!--Optional:-->
+<status>o</status> <!--Optional:--> <style></style> <!--Optional:--> <type></type>
+
+
+<!--Optional:-->
+<updateDateTime>2020-11-19T05:59:08Z</updateDateTime>
+
+
+<!--Optional:-->
+
+<urgency></urgency>
+</arg0>
+
+
+</ws:addAppointment>
+
+</soapenv:Body>
+
+</soapenv:Envelope>
+Make a call to create appointment
+
+SOAP Endpoint: https://{base url}/oscar/ws/ScheduleService?wsdl Service: {http://ws.oscarehr.org/}ScheduleWsService Port/Endpoint: {http://ws.oscarehr.org/}ScheduleWsPort
+Location URI: https://{base url}/oscar/ws/ScheduleService
+
+Once the appointment is posted, the system will return the below response with appointment id.
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+<ns2:addAppointmentResponse>
+
+<return>521</return>
+
+</ns2:addAppointmentResponse>
+
+
+    </soap:Body>
+</soap:Envelope>
+Parse the response to fetch the appointment id and save the appointment id in emr_appointment_no field. Update the status value in the table to RETURNED
+
+Note: We also update the Patient matching criteria based on which rule the patient was identified. Since the Patient search, fetch and creation is now handled by REST API so excluding this step.
+
+Update Appointment Workflow
+
+Read Record from 
+
+records_patient_visit_integration table to post update to appointments. Use this query to identify new updates
+
+update records_patient_visit_integration set
+
+status='RETURNED',emr_appointment_no={Returned appointment id} where id ={id from
+
+records_patient_visit_integration}
+
+SELECT records_patient_visit_integration.id AS id ,
+
+records_patient_visit_integration.bh_demographic_id AS bh_demographic_id, records_patient_visit_integration.bh_appointment_no AS bh_appointment_no,
+
+records_patient_visit_integration.bh_provider_no AS bh_provider_no,
+
+records_patient_visit_integration.clinic_id AS clinic_id,
+
+records_patient_visit_integration.clinic_emr_type AS clinic_emr_type,
+
+records_patient_visit_integration.emr_demographic_id AS emr_demographic_id,
+
+records_patient_visit_integration.pat_fname AS pat_fname, records_patient_visit_integration.pat_lname AS pat_lname,
+
+-- records_patient_visit_integration.pat_dob AS pat_dob,
+
+IF(records_patient_visit_integration.pat_dob IS NULL
+
+or records_patient_visit_integration.pat_dob = ''
+
+or records_patient_visit_integration.pat_dob = '0000-00-00', '',
+
+records_patient_visit_integration.pat_dob) as pat_dob ,
+
+records_patient_visit_integration.pat_ohip AS pat_ohip,
+
+records_patient_visit_integration.pat_gender AS pat_gender,
+
+records_patient_visit_integration.pat_cell_phone records_patient_visit_integration.pat_home_phone records_patient_visit_integration.pat_work_phone
+
+AS pat_cell_phone, AS pat_home_phone, AS pat_work_phone,
+
+records_patient_visit_integration.pat_email_id AS pat_email_id,
+
+records_patient_visit_integration.pat_address AS pat_address,
+
+records_patient_visit_integration.emr_appointment_no AS emr_appointment_no,
+
+records_patient_visit_integration.emr_provider_no AS emr_provider_no,
+
+records_patient_visit_integration.dr_fname AS dr_fname, records_patient_visit_integration.dr_lname AS dr_lname,
+
+records_patient_visit_integration.dr_billing_num AS dr_billing_num,
+
+CONCAT (DATE_FORMAT(records_patient_visit_integration.appointment_date, '%Y-%m-%d'),'
+
+', DATE_FORMAT(records_patient_visit_integration.start_time, '%H:%i')) AS appointment_date,
+
+records_patient_visit_integration.start_time AS start_time,
+
+records_patient_visit_integration.end_time AS end_time,
+
+records_patient_visit_integration.visit_type AS visit_type,
+
+records_patient_visit_integration.is_confirmed AS is_confirmed,
+
+records_patient_visit_integration.appointment_status AS appointment_status,
+
+records_patient_visit_integration.notes AS notes,
+
+records_patient_visit_integration.reason AS reason,
+
+records_patient_visit_integration.location AS location,
+
+records_patient_visit_integration.status AS status,
+
+records_patient_visit_integration.match_type records_patient_visit_integration.created_by records_patient_visit_integration.creator_id
+
+AS match_type, AS created_by, AS creator_id,
+
+records_patient_visit_integration.updated_datetime AS updated_datetime, records_patient_visit_integration.created_datetime AS created_datetime,
+
+records_patient_visit_integration.active AS active ,
+
+records_patient_visit_integration.operation_type AS operation_type
+
+,
+
+TIMESTAMPDIFF(MINUTE,records_patient_visit_integration.start_time,records_patient_visit_integr
+
+ation.end_time) AS duration
+
+FROM records_patient_visit_integration
+
+where status='NEW'
+
+AND created_by='bh' and operation_type='UPDATE'
+
+AND clinic_id = {clinid ID};
+
+Once the record is read, update the status to SENT for the record.
+update records_patient_visit_integration set status='SENT' where id={last read record
+
+id}
+
+SOAP Authorization
+
+Call the endpoint: https://{base url}/oscar/ws/LoginService?wsdl
+
+Service Endpoint : {http://ws.oscarehr.org/}LoginWsService
+
+Port/Endpoint : {http://ws.oscarehr.org/}LoginWsPort
+
+Location URI: https://{base url}/oscar/ws/LoginService
+
+Create SOAP Envelope Request4
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:ws="http://ws.oscarehr.org/">
+
+
+<soapenv:Header/>
+
+<soapenv:Body>
+<ws:login>
+
+
+<!--Optional:-->
+<arg0>Username</arg0>
+
+
+<!--Optional:-->
+<arg1>Password</arg1>
+
+</ws:login>
+
+
+</soapenv:Body>
+
+</soapenv:Envelope>
+The receiving system will provide security key and Security password in response
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+
+<ns2:loginResponse>
+<return>
+
+<securityId>Key</securityId>
+
+<securityTokenKey>Token</securityTokenKey>
+
+</return>
+
+
+</ns2:loginResponse>
+
+    </soap:Body>
+</soap:Envelope>
+The key and token would be used for successive transactions
+
+Before we post Appointment updates, we need to fetch the notes, reason, billing,location, name, remarks, resources, style, type ,urgency and program id of the Appointment in EMR so that we do not overwrite it with our changes.
+
+Endpoint: https://{base url}/oscar/ws/ScheduleService?wsdl Service: {http://ws.oscarehr.org/}ScheduleWsService Port/Endpoint: {http://ws.oscarehr.org/}ScheduleWsPort Location URI: https://{base url}/oscar/ws/ScheduleService
+
+SOAP Envelope Request
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:ws="http://ws.oscarehr.org/">
+
+
+<soapenv:Header>
+<wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd " xmlns:wsu="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd ">
+
+<wsse:UsernameToken wsu:Id="UsernameToken-C03EDBA2C1166A5E1215651941999542">
+
+<wsse:Username>Key</wsse:Username>
+
+<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-
+
+username-token-profile-1.0#PasswordText">Token</wsse:Password>
+
+
+</wsse:UsernameToken>
+
+</wsse:Security>
+
+</soapenv:Header>
+
+<soapenv:Body>
+
+<ws:getAppointment>
+
+   <!--Optional:-->
+<arg0>Appointment Id</arg0>
+
+
+</ws:getAppointment>
+
+</soapenv:Body>
+
+</soapenv:Envelope>
+The EMR will return the below response
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+<ns2:getAppointmentResponse>
+
+<return>
+
+<appointmentEndDateTime>2020-11-06T15:14:00-08:00</appointmentEndDateTime>
+
+<appointmentStartDateTime>2020-11-06T15:00:00-08:00</appointmentStartDateTime>
+
+<createDateTime>2020-11-06T09:08:12-08:00</createDateTime>
+
+<creator>Kuritzky, Lara Alexandra</creator>
+
+<demographicNo>212</demographicNo>
+
+<id>509</id>
+
+<location/>
+
+<name>ADI1,TEST1</name>
+
+<notes/>
+
+<programId>0</programId>
+
+<providerNo>1</providerNo>
+
+<reason/>
+
+<remarks/>
+
+
+<resources/>
+<status>t</status>
+
+<type/>
+
+<updateDateTime>2020-11-06T09:08:13-08:00</updateDateTime>
+
+<urgency/>
+
+</return>
+
+</ns2:getAppointmentResponse>
+
+
+    </soap:Body>
+</soap:Envelope>
+Parse the response and fetch the values for
+
+Location
+
+Notes
+
+Programid • Reason
+
+Remarks
+
+Resources • Type
+
+Urgency
+
+Before sending the update request, we need to update the values for these elements in request.
+
+We will append this information if we have something to add to the existing values else we will just copy the values for these tag in the update request.
+
+Prepare the SOAP Request Envelope
+• Transform the appointment Start date time and End Date time in YYYY-MM-
+
+ddTHH:mm:ss format
+• Add/append values in the request for elements fetched in Step 4.
+
+Call the Update appointment endpoint
+
+Endpoint: https://{bae url}/oscar/ws/ScheduleService?wsdl Service: {http://ws.oscarehr.org/}ScheduleWsService Port/Endpoint: {http://ws.oscarehr.org/}ScheduleWsPort Location URI: https://{base url}/oscar/ws/ScheduleService
+
+Request Envelope
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:ws="http://ws.oscarehr.org/">
+
+
+<soapenv:Header>
+<wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd " xmlns:wsu="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd ">
+
+<wsse:UsernameToken wsu:Id="UsernameToken-C03EDBA2C1166A5E1215651941999542">
+
+<wsse:Username>132</wsse:Username>
+
+<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-
+
+username-token-profile-1.0#PasswordText">5553389467759</wsse:Password>
+
+
+</wsse:UsernameToken>
+
+</wsse:Security>
+
+</soapenv:Header>
+
+<soapenv:Body>
+
+<ws:updateAppointment>
+
+<!--Optional:-->
+<arg0>
+
+
+<!--Optional:-->
+<appointmentEndDateTime>2020-11-06T15:15:00</appointmentEndDateTime>
+
+
+<!--Optional:-->
+06T15:00:00</appointmentStartDateTime>
+
+<appointmentStartDateTime>2020-11-
+
+
+<!--Optional:-->
+
+<billing></billing>
+
+<!--Optional:-->
+<bookingSource>bh</bookingSource>
+
+
+<!--Optional:-->
+<createDateTime>2020-11-17T03:06:27Z</createDateTime>
+
+
+<!--Optional:-->
+<creator>bh</creator>
+
+<demographicNo>212</demographicNo>
+
+
+<!--Optional:-->
+<id>509</id>
+
+
+<!--Optional:-->
+<lastUpdateUser></lastUpdateUser>
+
+
+<!--Optional:-->
+
+<location></location>
+
+<!--Optional:-->
+<name>ADI1,TEST1</name>
+
+
+<!--Optional:-->
+<notes>[Nov 17 - 10:05:59] Change required,</notes>
+
+<programId>0</programId>
+
+
+<!--Optional:-->
+<providerNo>1</providerNo>
+
+
+<!--Optional:-->
+
+<reason></reason>
+
+<!--Optional:-->
+
+<remarks></remarks>
+
+<!--Optional:-->
+
+<resources></resources>
+
+<!--Optional:-->
+<status>o</status>
+
+
+<!--Optional:-->
+
+<style></style>
+
+<!--Optional:-->
+
+<type></type>
+
+<!--Optional:-->
+<updateDateTime>2020-11-17T03:06:27Z</updateDateTime>
+
+
+<!--Optional:-->
+</arg0>
+
+
+<urgency></urgency>
+
+</ws:updateAppointment>
+
+</soapenv:Body>
+
+    </soapenv:Envelope>
+Once the appointment is updated the system will provide below response
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+<ns2:updateAppointmentResponse/>
+
+
+    </soap:Body>
+</soap:Envelope>
+Update the status value in the table to 
+
+RETURNED
+
+Note: For Update appointment workflow, phelox would have the emr_appointment_no and is required to complete the workflow.
+
+update records_patient_visit_integration set status='RETURNED' where id ={id from
+
+records_patient_visit_integration}
+
+Appointment Sync Workflow
+
+This workflow syncs the appointments from the EMR into Phelix 1. SOAP Authorization
+
+Call the endpoint: https://{base url}/oscar/ws/LoginService?wsdl
+
+Service Endpoint : {http://ws.oscarehr.org/}LoginWsService
+
+Port/Endpoint : {http://ws.oscarehr.org/}LoginWsPort
+
+Location URI: https://{base url}/oscar/ws/LoginService
+
+Create SOAP Envelope Request4
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:ws="http://ws.oscarehr.org/">
+
+
+<soapenv:Header/>
+
+<soapenv:Body>
+<ws:login>
+
+
+<!--Optional:-->
+<arg0>Username</arg0>
+
+
+<!--Optional:-->
+<arg1>Password</arg1>
+
+</ws:login>
+
+
+</soapenv:Body>
+
+</soapenv:Envelope>
+The receiving system will provide security key and Security password in response
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+
+<ns2:loginResponse>
+<return>
+
+<securityId>Key</securityId>
+
+<securityTokenKey>Token</securityTokenKey>
+
+</return>
+
+
+</ns2:loginResponse>
+
+    </soap:Body>
+</soap:Envelope>
+The key and token would be used for successive transactions
+
+The appointments are pulled based on last date time they were modified.
+
+When we do the pull 1st time, we manually define a date time from when we need to pull the appointments.
+
+Use below query to make an entry in the table
+
+Where Clinic_id will be the Clinic Id
+Value= Will date and time since when the appointment needs to be synched in YYYY-MM- DDTHH:mm:ss format.
+
+Call the SOAP endpoint to fetch appointments
+
+Endpoint: https://{bas url}/oscar/ws/ScheduleService?wsdl Service: {http://ws.oscarehr.org/}ScheduleWsService Port/Endpoint: {http://ws.oscarehr.org/}ScheduleWsPort Location URI: https://{base url}/oscar/ws/ScheduleService
+
+SOAP Envelope Request
+
+INSERT INTO `prod_mirth`.`mirth_master_lookup` (`ehr_name`,`lookup_name`,`code`,
+
+`value`,`clinic_id`) VALUES('<Clinic_name>','ApptLastUpdatedDateTime','','<Date
+
+time since the appointment nee+ds to be synched>', 'clinic_id');
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:ws="http://ws.oscarehr.org/">
+
+
+<soapenv:Header>
+<wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd " xmlns:wsu="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd ">
+
+<wsse:UsernameToken wsu:Id="UsernameToken-C03EDBA2C1166A5E1215651941999542">
+
+<wsse:Username>Key</wsse:Username>
+
+<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-
+
+username-token-profile-1.0#PasswordText">Token</wsse:Password>
+
+
+</wsse:UsernameToken>
+
+</wsse:Security>
+
+</soapenv:Header>
+
+<soapenv:Body>
+<ws:getAppointmentsUpdatedAfterDate>
+
+
+<!--Optional:-->
+<arg0>2020-11-18T21:59:09-08:00</arg0>
+
+<arg1>1000</arg1>
+
+</ws:getAppointmentsUpdatedAfterDate>
+
+
+</soapenv:Body>
+
+</soapenv:Envelope>
+The EMR will provide below response
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+<ns2:getAppointmentsUpdatedAfterDateResponse>
+
+<return>
+
+<appointmentEndDateTime>2020-12-06T15:14:59-08:00</appointmentEndDateTime>
+
+<appointmentStartDateTime>2020-12-06T15:00:00-08:00</appointmentStartDateTime>
+
+<billing/>
+
+<createDateTime>2020-11-18T21:59:09-08:00</createDateTime>
+
+<creator>blockhealth</creator>
+
+<demographicNo>212</demographicNo>
+
+<id>521</id>
+
+<location>138 13th St East, Unit 320 Nor</location>
+
+<name/>
+
+<notes>[Nov 17 - 10:05:59] Change required</notes>
+
+<programId>0</programId>
+
+<providerNo>1</providerNo>
+
+<reason/>
+
+<remarks/>
+
+
+<resources/>
+<status>o</status>
+
+<style/>
+
+<type/>
+
+<updateDateTime>2020-11-18T21:59:09-08:00</updateDateTime>
+
+<urgency/>
+
+</return>
+
+</ns2:getAppointmentsUpdatedAfterDateResponse>
+
+
+    </soap:Body>
+</soap:Envelope>
+If there are more than 1 appointment which were updated then we will have multiple return tags in the response.
+
+Next, update the LastApptUpdateTime in the database,
+
+UPDATE `prod_mirth`.`mirth_master_lookup` SET value = <updateDateTime from
+
+Response> where lookup_name='ApptLastUpdatedDateTime' and value < "<updateDateTime
+
+from Response>" and clinic_id=<clinicid>;
+
+We will now store the response in 
+
+records_patient_visit_integration.
+The appointment response does not have the patient demographics so we will first call Patient SOAP endpoint to fetch patient details.
+
+Endpoint: https://{base url}/oscar/ws/DemographicService?wsdl Service: {http://ws.oscarehr.org/}DemographicWsService Port/Endpoint: {http://ws.oscarehr.org/}DemographicWsPort Location URI: https://{base url}/oscar/ws/DemographicService
+
+SOAP Request Envelope
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:ws="http://ws.oscarehr.org/">
+
+
+<soapenv:Header>
+<wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd " xmlns:wsu="http://docs.oasis-
+
+http://open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd ">
+
+<wsse:UsernameToken wsu:Id="UsernameToken-C03EDBA2C1166A5E1215651941999542">
+
+<wsse:Username>132</wsse:Username>
+
+<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-
+
+username-token-profile-1.0#PasswordText">5553389467759</wsse:Password>
+
+
+</wsse:UsernameToken>
+
+</wsse:Security>
+
+</soapenv:Header>
+
+<soapenv:Body>
+
+<ws:getDemographic>
+
+   <!--Optional:-->
+<arg0>Demographic id</arg0>
+
+
+</ws:getDemographic>
+
+</soapenv:Body>
+
+</soapenv:Envelope>
+EHR will provide the response in below format
+
+<soap:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+<SOAP-ENV:Header/>
+<soap:Body xmlns:ns2="http://ws.oscarehr.org/">
+
+<ns2:getDemographicResponse>
+
+<return>
+
+<activeCount>1</activeCount>
+
+<address/>
+
+<chartNo/>
+
+<city/>
+
+<dateJoined>2020-06-17T00:00:00-07:00</dateJoined>
+
+<dateOfBirth>03</dateOfBirth>
+
+<demographicNo>212</demographicNo>
+
+<displayName>ADI1, TEST1</displayName>
+
+<email/>
+
+
+<familyDoctor>
+&gt;&lt;
+
+<firstName>TEST1</firstName>
+
+/rdohip
+
+&gt;&lt;
+
+<hcType>BC</hcType>
+
+<hin>1231231231</hin>
+
+<hsAlertCount>0</hsAlertCount>
+
+<lastName>ADI1</lastName>
+
+<lastUpdateDate>2020-06-17T00:11:45-07:00</lastUpdateDate>
+
+<lastUpdateUser>1</lastUpdateUser>
+
+<links/>
+
+<monthOfBirth>02</monthOfBirth>
+
+<officialLanguage>English</officialLanguage>
+
+<patientStatus>AC</patientStatus>
+
+<patientStatusDate>2020-06-17T00:00:00-07:00</patientStatusDate>
+
+<phone>604</phone>
+
+
+<phone2/>
+<postal/>
+
+<providerNo/>
+<province>BC</province>
+
+
+<rosterStatus/>
+<sex>F</sex>
+
+<sexDesc>Female</sexDesc>
+
+<sin/>
+
+
+<spokenLanguage/>
+<title/>
+
+<ver/>
+
+<yearOfBirth>1999</yearOfBirth>
+
+</return>
+
+</ns2:getDemographicResponse>
+
+
+    </soap:Body>
+</soap:Envelope>
+&lt;rdohip rd&gt;&lt;/rd&gt;</familyDoctor>
+
+We will use the appointment response and Patient response to store the information in 
+
+records_patient_visit_integration table.
+This record will be stored with Status=New and created_by=EMR.
+Operation_type will be New if the appointment is new(means we do not have the appointment stored in the table)
+
+Operation_type will be Update if the appointment already exists in the table. Example Sql query:
+
+IF NOT EXISTS (SELECT 1 FROM records_patient_visit_integration
+
+WHERE emr_appointment_no = p_Emr_Appointment_No AND
+
+clinic_id=p_ClinicId ORDER BY 1 DESC LIMIT 1)
+
+THEN
+
+SET v_operationType = 'NEW';
+
+ELSE
+
+SET v_operationType = 'UPDATE';
+
+If the record is of type NEW , Insert the data in table.
+
+If the record is of Type Update, check if the pulled appointment has any updates using below query
+
+IF EXISTS(SELECT 1 FROM records_patient_visit_integration
+
+WHERE id=(SELECT id FROM
+
+records_patient_visit_integration WHERE emr_appointment_no = p_Emr_Appointment_No ORDER BY
+
+1 DESC LIMIT 1)
+
+AND Emr_Provider_No = p_Emr_Provider_No
+
+=p_Emr_Appointment_Date
+
+AND appointment_date
+
+AND start_time =p_start_time
+AND end_time =v_endTime
+
+AND appointment_status =BINARY(v_status)
+
+AND clinic_id =p_ClinicId ORDER BY created_datetime DESC LIMIT 1)
+
+If the query returns 1, then skip this record and do not insert a new record
+
+If the query returns nothing, then insert a new record with operation_type=UPDATE
+
+Note: Handle newline characters in notes and reason tag in response
+
+Appendix
+
+Database to Tag Mapping
+
+Database Field
+
+emr_demographic_id emr_demographic_id emr_demographic_id
+
+emr_demographic_id emr_demographic_id emr_demographic_id pat_fname
+
+SOAP Envelope
+
+getDemographicResponse getDemographic getAppointmentsUpdatedAfter DateResponse getAppointmentResponse addAppointment updateAppointment getDemographicResponse
+
+Tag Read/W rite
+
+demographicNo R arg0 R demographicNo R
+
+demographicNo R demographicNo W demographicNo W firstName R
+
+pat_lname pat_dob
+
+pat_ohip pat_gender pat_cell_phone pat_home_phone pat_email_id pat_address
+
+emr_appointment_no
+
+emr_appointment_no emr_appointment_no emr_provider_no
+
+emr_provider_no emr_provider_no emr_provider_no appointment_date
+
+appointment_date appointment_date appointment_date
+
+appointment_status appointment_status appointment_status appointment_status
+
+`prod_mirth`.`mirth_master_l ookup`.value `prod_mirth`.`mirth_master_l ookup`.value
+
+start_time start_time start_time start_time end_time end_time end_time
+
+getDemographicResponse getDemographicResponse
+
+getDemographicResponse getDemographicResponse getDemographicResponse getDemographicResponse getDemographicResponse getDemographicResponse
+
+
+getAppointmentResponse
+addAppointmentResponse
+
+updateAppointment
+
+addAppointment
+
+getAppointmentResponse
+getAppointmentsUpdatedAfterDat eResponse
+
+
+getAppointmentResponse
+
+addAppointment
+
+updateAppointment
+
+updateAppointment
+
+addAppointment
+
+getAppointmentResponse
+getAppointmentsUpdatedAfterDat eResponse getAppointmentsUpdatedAfterDat e
+
+getAppointmentsUpdatedAfterDat eResponse
+
+getAppointmentsUpdatedAfterDat eResponse
+
+
+getAppointmentResponse
+
+addAppointment
+
+updateAppointment
+getAppointmentsUpdatedAfterDat eResponse
+
+
+getAppointmentResponse
+addAppointment
+lastName R dateOfBirth, R monthOfBirth, yearOfBirth
+
+hin R sex R phone2 R phone R email R Address, city, R postal, province
+
+id R
+
+id R return W providerNo R
+
+providerNo W providerNo W providerNo R appointmentStartD R ateTime appointmentStartD R ateTime appointmentStartD W ateTime appointmentStartD W ateTime
+
+Status W status W status R status R
+
+Arg0 R
+
+updateDateTime R
+
+appointmentStartD R ateTime appointmentStartD R ateTime appointmentStartD W ateTime appointmentStartD W ateTime appointmentEndDa R teTime appointmentEndDa R teTime appointmentEndDa W teTime
+
+getAppointmentsUpdatedAfterDat
+
+eResponse
+
+getAppointmentsUpdatedAfterDat
+
+eResponse
+
+end_time
+
+visit_type
+
+visit_type visit_type visit_type Notes
+
+Notes Notes Notes Reason
+
+Reason Reason Reason location
+
+location location location
+
+
+updateAppointment
+getAppointmentsUpdatedAfterDat eResponse getAppointmentResponse
+
+
+addAppointment
+updateAppointment
+getAppointmentsUpdatedAfterDat eResponse getAppointmentResponse
+
+
+addAppointment
+updateAppointment
+getAppointmentsUpdatedAfterDat eResponse getAppointmentResponse
+
+
+addAppointment
+updateAppointment
+getAppointmentsUpdatedAfterDat eResponse getAppointmentResponse
+
+
+addAppointment
+updateAppointment
+appointmentEndDa W teTime
+type R
+
+type R type W type W notes R
+
+notes R notes W notes W Reason R
+
+Reason R Reason W Reason W location R
+
+location R location W location W
+
+Oscar - Provider Available Slots
+
+
+Created by Mayank (Unlicensed)
+Apr 27, 20213 min read
+4 people viewed
+Endpoint:
+
+https://turtle-bay.kai-oscar.com/oscar/ws/services/schedule/scheduleTemplate?dateFrom=2021-01-01&dateTo=2021-01-31&providerNo=10004&includes[]=duration&includes[]=availability
+
+ 
+
+Method: GET
+
+Auth: Same as other endpoints
+
+Parameters:
+
+dateFrom
+
+            Date from where we need available slots
+
+dateTo
+
+            Date till which we need available slots from
+
+providerNo
+
+            Provider id in Oscar
+
+includes[] – Duration
+
+            if the response should include Duration
+
+includes[] – Availability
+
+            if the response should include Availability
+
+ 
+
+Request body: NA
+
+ 
+
+Response
+
+ 
+
+[
+
+       {
+
+              "providerNo": "10004",
+
+              "date": "2021-01-08",
+
+              "timeslotList": [
+
+                      {
+
+                             "dateTime": "2021-01-08T08:00:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T08:10:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T08:20:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T08:30:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T08:40:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T08:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T09:00:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T09:10:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T09:20:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T09:30:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T09:40:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T09:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T10:00:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T10:10:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T10:20:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T10:30:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T10:40:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T10:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T11:00:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T11:10:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T11:20:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T11:30:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T11:40:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T11:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T12:00:00-0800",
+
+                             "scheduleTemplateCode": "L",
+
+                             "duration": "10",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T12:10:00-0800",
+
+                             "scheduleTemplateCode": "L",
+
+                             "duration": "10",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T12:20:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                            "dateTime": "2021-01-08T12:30:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T12:40:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T12:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T13:00:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T13:10:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T13:20:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T13:30:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T13:40:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T13:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T14:00:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T14:10:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": true
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T14:20:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T14:30:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T14:40:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T14:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T15:00:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T15:10:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T15:20:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T15:30:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T15:40:00-0800",
+
+                             "scheduleTemplateCode": "0",
+
+                             "duration": "10",
+
+                             "availability": false
+
+                      },
+
+                      {
+
+                             "dateTime": "2021-01-08T15:50:00-0800",
+
+                             "scheduleTemplateCode": "W",
+
+                             "duration": "15",
+
+                             "availability": false
+
+                      }
+
+              ]
+
+       }
+
+]
+
+ 
+
+PHP Code
+<?php
+
+ 
+
+$curl = curl_init();
+
+ 
+
+curl_setopt_array($curl, array(
+
+  CURLOPT_URL => 'https://turtle-bay.kai-oscar.com/oscar/ws/services/schedule/scheduleTemplate?dateFrom=2021-01-08&dateTo=2021-01-09&providerNo=10004&includes%5B%5D=duration&includes%5B%5D=availability',
+
+  CURLOPT_RETURNTRANSFER => true,
+
+  CURLOPT_ENCODING => '',
+
+  CURLOPT_MAXREDIRS => 10,
+
+  CURLOPT_TIMEOUT => 0,
+
+  CURLOPT_FOLLOWLOCATION => true,
+
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+
+  CURLOPT_CUSTOMREQUEST => 'GET',
+
+  CURLOPT_HTTPHEADER => array(
+
+    'Authorization: OAuth oauth_consumer_key="yhq1qrhbcfo6ln92",oauth_token="e6ada0c6-12eb-4a46-a479-714bb3fdc9a0",oauth_signature_method="PLAINTEXT",oauth_timestamp="1610053587",oauth_nonce="109809hkvj",oauth_verifier="231eec15-1008-4a27-a9b4-ee9300a57e6f",oauth_version="1.0",oauth_callback="oob",oauth_signature="wwfd77neow05yur6%262fa52cbc-76e6-472f-9690-5157002bff39"',
+
+    'Content-Type: application/json',
+
+    'Cookie: JSESSIONID=7C7313566D7EE337146D2DC494805DB6'
+
+  ),
+
+));
+
+ 
+
+$response = curl_exec($curl);
+
+ 
+
+curl_close($curl);
+
+echo $response;
+
+ 
+
+Oscar - POST Documents
+
+
+Created by Mayank (Unlicensed)
+Apr 27, 20211 min read
+3 people viewed
+Endpoint
+
+https://block-health.kai-oscar.com/oscar/ws/services/document/saveDocumentToDemographic
+
+Method: Post
+
+Header:
+
+Authorization: “Same as you use for search & fetch patients:
+
+Content-Type: application/json
+
+ 
+
+Body:
+
+{
+
+            "fileName": "Kitty.png",
+
+            "description": "Kitty",
+
+            "contentType": "image/png",
+
+            "observationDate": 1594771200000,
+
+            "demographicNo": 1,
+
+            "providerNo": "999998",
+
+            "fileContents": "[base64EncodedString]"
+
+}
+
+ 
+
+ 
+
+ 
+
+Response: HTTP 200
+
+ 
+
+Response body
+
+{
+
+    "id": 371,
+
+    "type": "",
+
+    "docClass": "",
+
+    "subClass": "",
+
+    "fileName": "20200810024355_Referral_Letter_20200727_005441",
+
+    "description": "Kitty",
+
+    "xml": "",
+
+    "creator": "1",
+
+    "responsible": "",
+
+    "source": "REST API",
+
+    "sourceFacility": "",
+
+    "programId": -1,
+
+    "updateDateTime": 1597052635362,
+
+    "status": "A",
+
+    "contentType": "application/pdf",
+
+    "contentDateTime": 1597052635067,
+
+    "reportMedia": null,
+
+    "sentDateTime": null,
+
+    "public1": 0,
+
+    "observationDate": 1594771200000,
+
+    "numberOfPages": 1,
+
+    "appointmentNo": -1,
+
+    "abnormal": false,
+
+    "restrictToProgram": false,
+
+    "providerNo": null,
+
+    "demographicNo": null,
+
+    "fileContents": null,
+
+    "reviews": []
+
+}
+
+ 
+
+Oscar - Manual Testing
+
+
+Created by Mayank (Unlicensed)
+May 05, 20211 min read
+1 person viewed
+Workflow > Referral Triage > New Patient
+
+New patient created in Phelix gets pushed to Oscar
+
