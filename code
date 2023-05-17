@@ -1,0 +1,774 @@
+Accuro API Documentation
+Overview
+Accuro API is the interface into the Accuro application. The core functionality includes:
+Searching for and creating patients
+Retrieving appointments and provider schedules
+Adding patient lab results and observations
+Retrieving documentation generated from a patient’s chart by an Accuro user Uploading documents to a patient’s chart Creating encounter notes within a patient’s chart
+Architecture
+Accuro API Architecture
+Accuro API provides access to the data of many Accuro clinics. To enable this, Accuro API requires some information to determine which Accuro the application is trying to access. This required information is a uuid and a tenant, which are unique to each Accuro. Although both things represent the same thing, the tenant value is short and usually human-readable.
+An application using the Accuro API is provided with a single OAuth client. Access to individual Accuro instances is governed by authenticating with each Accuro instance.
+We’ll discuss authentication in more detail but Accuro users are given the tenant value of their Accuro and use that when granting access to an integrating application.
+The uuid will be given and communicated to integrating applications for each Accuro they are authorized to access. For every request to the Accuro API, the uuid MUST be provided as a query parameter like:
+GET /resource?uuid={uuid of Accuro instance}
+ 820
+ Base URLs
+On receiving access to the Accuro API, you will receive the base URLs for the sandbox environment where you’ll be able to develop and test your application against test data.
+Once you are at the stage of connecting to a clinic’s Accuro, you will receive a production OAuth client and the base URL for the production instance of Accuro API.
+Next
+Discussing how to authenticate with the Accuro API will make the uuid and tenant values more clear.
+Authentication
+Accuro API supports user-based and machine-based authorization using OAuth 2.0 flows. For user- based authorization, a user may be either a Provider or a Patient. Machine-based authorization, or authorization that does not require any user interaction, is possible with the client credentials grant.
+The majority of endpoints are only accessible with provider user-based authorization and requires your application to use the OAuth 2.0 Authorization Code flow.
+Provider Authorization
+Authenticating to the Accuro API involves:
+1. Receiving an OAuth client for the Accuro API (each application has a single OAuth client)
+2. Creating a user in the clinic’s Accuro and passing those credentials and the tenant value of
+their Accuro instance to the appropriate member of the clinic
+3. Your application receives the uuid for the Accuro instance
+4. An Accuro user launches an OAuth 2.0 authorization code flow
+5. An Accuro user enters in credentials of the Service User which represents your application
+6. Your application retrieves an access token and continually refreshes that token for indefinite
+access
+The Service User and Accuro Tenant value
+In order to authenticate and access a specific Accuro instance, a user within Accuro needs to be created for your application. QHR handles the creation of this service user and gives the appropriate member of the clinic the credentials.
+A member of the clinic receives the following information from QHR that is required to grant a token:
+the username and password of the service user the tenant value of their Accuro instance
+OAuth 2.0 Authorization Code Grant
+Accuro API supports the OAuth 2.0 authorization code grant and requires Accuro users to enter the service user credentials they receive from QHR. It’s highly recommended that applications use a library that implements the standard OAuth 2.0 flows. For example purposes, the actual requests are described below.
+URL to initiate authorization code grant flow
+{Accuro API base url}/oauth/authorize?response_type=code&client_id={client ID}&redirect_uri={URI registered with your OAuth client}&scope={space-separated list of scopes}`
+Accuro users are redirected to the Accuro API login screen where they enter the service user credentials. !(accapi-login.png)
+821
+
+ After an Accuro user successfully authenticates, the browser redirects to:
+{Redirect URI}?code={authorization code}
+Your application should retrieve the code value and use this to retrieve an access token. The code
+can only be used once and has a short (10 minutes) lifetime.
+POST {Accuro API base url}/oauth/token?grant_type=authorization_code&code= {code}&redirect_uri={Redirect URI}
+Headers:
+Authorization: basic {base64 encoded "clientId:clientSecret"}
+{
+"access_token": "3efc5dd9-7e29-4dcd-9b93-a1b2c3d4e6f7", "token_type": "bearer", "refresh_token": "8f81c010-1771-43f1-8188-a1b2c3d4e6f7", "expires_in": 35159, "scope": "{requested scopes}"
+}
+Authenticating as a Provider gives your application access to all endpoints listed here.
+Refreshing your access token
+To maintain access to the clinic’s Accuro, you have to continually refresh your access token with the refresh token. Access tokens have an expiry of 10 hours and a refresh token has an expiry of 30 days. The expires_in field indicates (in seconds) how long the access token is valid for from now.
+You are only able to use a refresh token once. Refreshing a token will return a new valid access token as well as a new refresh token to use for the next refresh.
+POST {Accuro API base url}/oauth/token?grant_type=refresh_token&refresh_token= {refresh token}
+{
+"access_token": {new access token}, "token_type": "bearer", "refresh_token": {new refresh token}, "expires_in": 35159, "scope": "{requested scopes}"
+}
+Provider Permissions
+Provider Permissions set for the Service User impacts what data will client applications will be allowed to access through Accuro API.
+When authenticating to Accuro API through this mechanism, Provider-based authentication, client applications must be aware of how their requests are impacted by Provider Permissions. For more information on how Accuro API enforces Provider Permissions, go (here) [/guides/accuro- api/provider-permissions].
+Machine-based Authorization with Client Credentials Grant
+Accuro API supports obtaining an access token via an OAuth 2.0 client credentials grant. To obtain an access token, make a request like:
+POST {Accuro API base url}/oauth/token?grant_type=client_credentials&scope= {space-seperated list of scopes} Headers:
+Authorization: basic {base64 encoded "clientId:clientSecret"}
+{
+"access_token": "3efc5dd9-7e29-4dcd-9b93-a1b2c3d4e6f7", "token_type": "bearer", "refresh_token": "8f81c010-1771-43f1-8188-a1b2c3d4e6f7", "expires_in": 35159, "scope": "{requested scopes}"
+}
+822
+
+ This access token is only able to access the public endpoints which are endpoints that do not have /patient-portal, /materials, or /provider- portal prefixes. See full API Reference.
+Patient Authorization
+Patient resources are prefixed with /patient-portal and provide access to patient documents, labs, and appointments as well as the public endpoints. If you need this level of access, ask your contact at QHR.
+Making requests to the Accuro API
+Accuro UUID
+When creating the service user QHR also provides the uuid of the clinic’s Accuro to the user. It’s highly recommended that your application provide a way for users to associate their account or clinic with the uuid of their Accuro; the uuid is required to be passed as a query parameter on every request to the Accuro API.
+The uuid of an Accuro instance is available in Accuro in Accuro Start Menu > Search ‘View Log’ > System Information.txt > Database UUID Including the Access Token
+You need to include the access token and uuid for the clinic’s Accuro in each request to the API like so:
+GET {Accuro API base url}/rest/resource?uuid={Accuro uuid} Authorization: bearer {access token}
+Finding and Creating Patients in Accuro
+A typical workflow is for applications to search for a patient and if no patient exists, create that patient. Accuro API provides patient search and creation, enabling patient check-ins, referrals, updating existing patient information and other use cases.
+Searching by personal health card number
+You can search for a patient by health card number using the search endpoint.
+GET {Accuro API base url}/rest/v1/provider-portal/patients/search?uuid={Accuro uuid}&phn={health card number} Patient with minimum required fields
+[
+{
+... patient ...
+}, {
+... patient2 ...
+} ];
+API Reference
+Creating a patient
+If your search for a patient by their health card number and there are no results, you will be able to create the patient. POST {Accuro API base url}/rest/v1/provider-portal/patients?uuid={Accuro uuid}
+Minimal Patient
+{ "demographics": {
+823
+
+ "firstName": "New", "lastName": "Patient", "middleName": "", "title": "Mr.", "suffix": "", "birthday": null, "genderId": 1, "email": {}, "phones": null, "addresses": [], "healthCard": {
+"phn": "1234567890AB", "locationId": 17, "expiry": null
+},
+"preferredContactType": null, "nextKinName": "", "nextKinPhone": null, "officialLanguageCode": null, "spokenLanguageCode": null, "relationshipStatusId": 6
+},
+"familyProviderId": null, "enrolledProviderId": null, "officeProviderId": null, "referringProviderId": null, "insurerId": 1, "fileNumber": "", "registrationNumber": "", "paperChartNote": "", "paperChart": false, "patientStatusId": 1, "gestationAge": null, "employerContactId": null, "pharmacyContactId": null, "referredDate": null, "onSocialAssistance": "hasArchivedRecords": "deceased": false, "deceasedDate": null, "occupation": "",
+false, false,
+"alert": {}, "ontarioDetails": {
+"validationStatus": false, "validationMessage": "", "admissionDate": null, "dischargeDate": null, "masterNumber": -1 }}
+API Reference
+Helpful hints for fields
+demographics
+Resources for some fields are provided below. For other fields, see the Demographics object. demographics.genderId Possible values can be found here.
+demographics.healthCard.locationId
+The location ID indicates which jurisdiction (like a province or state) issued the heath card number. Accuro API provides all Canadian provinces and US states. For other jurisdictions, you are able to set the location to ‘other’.
+Your application must provide the location of the health number as Accuro uses this to validate the format and
+Possible values can be found here.
+family|enrolled|office|refferingProviderId
+These fields require an ID for a provider that exists in the Accuro’s address book. The reference for retrieving all providers is here. insurerId
+You should populate this field with the default government insurer for the province.
+Province InsurerId
+Alberta 24 British Columbia 1 Saskatchewan 1 Manitoba 1 Ontario 1 Nova Scotia 24
+patientStatusId
+This indicates if a patient is active, inactive, or a custom status set by the clinic. Active is 1, Inactive is 0.
+employerContactId, pharmacyContactId
+When creating a patient, you should NOT populate these fields (omit or set to null) since it’s currently not possible to find these IDs. When updating the patient, you should keep the value that exists on the patient.
+Province-specific details
+For each province of Accuro, there is some province specific data that needs to be included when creating a patient.
+824
+
+ British Columbia
+No specific data is required for British Columbia.
+Alberta
+Example Alberta Details
+{
+"type": "RECP", // PYST - Payee, RECP - Service Recipient, RFRC - Out of
+Province Referring Service Provider
+"newBornCode": "ADOP", // ADOP - Adoption, LVBR - Live Birth, MULT - Multiple
+Birth, STBN - Still born
+"guardianUli": "234123564", // Health card number
+"guardianRegistration": "123", // Registration number for private insurance "uli2": {
+"phn": "1254",
+"locationId": 1,
+"expiry": "2016-02-16T00:00:00.000-0800"
+}}
+Minimal Albertal Details
+{
+"uli2": { }
+}
+API Reference
+Saskatchewan
+No specific data is required for Saskatchewan.
+Manitoba
+{
+"healthRegistrationNumber": "123";
+}
+API Reference Ontario
+{
+"validationStatus": false, "validationMessage": "Not validated", "admissionDate": "2019-05-31 00:00:00.000", "dischargeDate": "2019-05-31 00:00:00.000", "masterNumber": 123
+}
+API Reference
+Nova Scotia
+{
+"guardianHcn": "123234123", "secondaryHealthCard": {
+"phn": "1254",
+"locationId": 1,
+"expiry": "2019-02-16T00:00:00.000-0800"
+},
+825
+
+ "lastUpdatedDatetime": "20019-05-31 00:00:00.000" } API Reference
+Available Slots for New Appointments
+The scheduling functionality in the Accuro API exposes booked appointments and can be used to determine at what times the provider is available for new appointments. Other resources include appointment types and reasons, suggestion types, appointment statuses and billing details.
+This guide will introduce the concepts that are required to enable online booking functionality. The Suggestion Concept
+A core concept to Accuro’s schedule is the Suggestion resource. Accuro users create suggestions that are associated with an appointment type and reason. They can then apply the suggestion which adds the suggestion to a specific provider, date, time. Key fields in the suggestion resource are:
+name a unique text identifier for the suggestion. The name field is used to link a suggestion and an applied suggestion (an instance of a suggestion that exists on a provider’s schedule and has a start and end time)
+appointment type ID indicating the type of appointment allowed to be booked appointment reason ID indication the reason for the appointment being booked
+allowed to book boolean controlling if any appointment can be booked
+Suggestions are configured within Accuro and can be added or ‘applied’ to a providers schedules at
+specific times.
+Example Suggestion
+{
+"name" : "General Checkups", "color" : {
+"blue" : 12345,
+"green" : 12345, "transparency" : 12345, "RGB" : 12345, "red" : 12345, "colorSpace" : {
+"CS_sRGB" : true, "numComponents" : 12345, "type" : 12345 },
+"alpha" : 12345 },
+"abbreviation" : "CH",
+"typeId" : 1,
+"reasonId" : 2, "allowProviderCreation" : true, "allowMedeoEBookingRequests" : true, "barDisplay" : true,
+"active" : true }
+API Reference
+Applied Suggestions
+When suggestions are associated with a specific provider, date, and time an applied suggestion instance is created. Applied suggestions indicate when the provider can see patients and for which appointment type.
+To retrieve more details (appointment type and reason) about an applied suggestion you must use the name field to find the associated suggestion. The name field links a suggestion with an applied suggestion.
+Example Applied Suggestion
+{
+"name" : "Checkup", "providerId" : 1, "resourceId" : 1,
+826
+
+ "subColumn" : 0,
+"date" : "2018-08-07T00:00:00.000-0700", "startTime" : 800,
+"endTime" : 815,
+"grouped" : true, "allowMedeoEBookingRequests" : true, "allowProviderCreation" : true
+}
+API Reference
+Example of Providers Schedule
+A typical schedule for a provider looks like the following diagram. All times they are available for an appointment is marked with a suggestion (called an applied suggestion) which indicates the appointment type and reason of the appointment the provider is available for.
+Example Schedule
+Calculating Available Slots for Appointments
+A providers schedule can be thought of as a series of layers. The first layer is simply time, then applied suggestions, then appointments.
+To determine the available slots for new appointments, applications need to retrieve the applied suggestions to discover the possible times a provider is available for a specific appointment type. Out of those possible times, if there is an appointment that has been booked that time should be removed as an available slot for a new appointment.
+Appointment Slots
+List Applied Suggestions API Reference List Appointments API Reference Gotcha: Appointment Duration
+In the above example schedule, appointments actually have a duration of 30 minutes even though the applied suggestions span longer than 30 minutes. This means that multiple appointments can be booked on top of an applied suggestion if the applied suggestion is longer than 30 minutes (specifically a multiple of 30 minutes).
+However, Appointment types, Suggestions, and Applied Suggestions do not have any preset duration and this data will not come back in any response objects. Applications using the Accuro API will need to provide a way for users to map a Suggestion to a specific duration.
+Once the duration of appointments is known for a specific suggestion, applications are able to calculate the available slots. For example, if an applied suggestion occurs on a providers schedule from 10:00 to 11:30, and the suggestion is mapped to a 30 minute appointment duration, then there will be 3 avaibable slots for new appointments at 10:00, 10:30 and 11:00.
+Example Slots Next Step
+Once available slots for new appointments are known, these can be shown to users and selected by them to create a new appointment. See Creating an Appointment for how the Accuro API can be used to book appointments.
+Creating an Appointment
+After determining the available slots for new appointments, client applications have most of the information they need to create an appointment.
+The information needed to create an appointment is:
+{
+"date" : "2019-01-31", "startTime" : 1300, "endTime" : 1315, "subColumn" : 1, "patientId" : 2, "providerId" : 3, "resourceId" : 4, "officeId" : 5, "maskId" : 6, "appointmentDetails" : {
+"billingProviderId" : 3,
+"referringProviderId" : null, // Optional
+"notes" : "Patient Would like to discuss flu vaccines",
+"alerts" : "Patient is always late, booked an extra 10 minutes", "reasonId" : 7,
+827
+
+ "typeId" : 8,
+"priorityId" : 1, "arrived" : false, "confirmed" : false, "serviceLocation" : "O"
+}}
+API Reference
+Below is how the above information should be populated.
+date, startTime, endTime
+The specifics of a date and time for an appointment is determined by which available slot is chosen
+during the online booking process.
+patientId
+To get a valid patientId, see Finding or Creating a Patient.
+providerId, billingProviderId, resourceId, subColumn, typeId, reasonId From Applied Suggestion
+Each available slot for a new appointment has an underlying applied suggestion which has data fields that must be transferred into the new appointment. These fields are:
+providerId, billingProviderId The provider associated with the applied suggestion and available slot resourceId May exist for some Accuro instances and clinics. Corresponds to a resource like equipment
+subColumn The specific column the applied suggestion is in
+Example Applied Suggestion
+{
+"name" : "Checkup", "providerId" : 3, "resourceId" : 4, "subColumn" : 0, "date" : "2019-01-31", "startTime" : 800,
+"endTime" : 1700,
+"grouped" : true, "allowMedeoEBookingRequests" : true, "allowProviderCreation" : true
+}
+From Suggestion
+To populate the typeId and reasonId fields when creating an appointment, the actual suggestion resource should be retrieved by retrieving the full list of suggestions and extracting the typeId and reasonId field from the resource that matches the name field on the applied suggestion.
+Example Suggestion
+{
+"name" : "Checkup",
+"color" : {...},
+"abbreviation" : "CH",
+"reasonId" : 7,
+"typeId" : 8, "allowProviderCreation" : true, "allowMedeoEBookingRequests" : true, "barDisplay" : true, "active" : true
+}
+API Reference officeId
+828
+
+ Accuro is capable of containing multiple offices. However, since a schedule (e.g. applied suggestions) is associated with a provider and not an office in any way, you must provide a way for Accuro users to select which office to associate appointments to. Applications are able to retrieve the list of offices and should enable users to select the appropriate office.
+API Reference
+maskId
+This field should be omitted and ignored.
+priorityId
+Applications are able to retrieve a list of the priorities that exist in Accuro.
+API Reference
+serviceLocation
+The serviceLocation should default to the capital letter ‘O’ which corresponds to ‘The Provider’s Office’. Applications may enable users to configure another location to use.
+Example of service locations
+Service Locations
+User defined fields: notes, alerts
+Applications can provide text values for the notes and alerts fields either with user input or configured values. The alerts field value will be shown in a prompt when the appointment is opened within Accuro.
+Adding Labs and Observations Key Concepts
+Lab Test The name of a particular test which contains result types. It is a container object to indicate which type of results will be recorded. It’s possible that a single test will have multiple measurements (these different types of measurements correspond to result types in Accuro API).
+Lab Result A template which can be used to create an observation to be included in a particular lab- group. Includes things like units of measurement, reference ranges, data type, description etc.
+Lab Group An instance of a lab test, including a number of different types of dates, ordering physician information, review data, internal/external notes. It contains the results that are produced by the test called ‘observations’.
+Observation An instance of a lab result, includes the actual result value, notes, label to be used when displaying the observation, reference range units etc.
+API Reference
+Add, Retrieve Lab Test Types, Lab Result Types and Add a Result to a Test Create/Add to an instance of a test and it’s contained observations
+Workflow
+Labs Workfow
+Constructing a lab-group and observation
+Lab groups are a particular instance of a lab test. As such much of the information required to create a lab group comes from the lab test object. Observations are instances of lab results. As such much of the information comes from the lab result object.
+Lab Test
+Use this information to construct a Lab Group. {
+"testId" : 42,
+"testName" : "CHOL Panel", "sourceId" : null, "active" : true
+}
+829
+
+ Lab Result
+Use this information to construct an Observation.
+{
+"resultId" : 42,
+"resultName" : "BP - Diastolic",
+"dataType" : "Numeric",
+"units" : "mmHG",
+"sourceId" : null,
+"imperial" : false,
+"description" : "Arterial pressure between heart beats.", "referenceRange" : "< 80", "active" : true
+}
+Lab Group + Observation
+Using both the Lab Test and the Lab Result data, you can construct a Lab Group. The Lab Group has additional information like a patient ID, various dates, notes, result values and flags etc.
+{
+"active" : true,
+"patientId" : <Prerequisite Info>,
+"testId" : <LabTest.testId>,
+"sourceId" : <LabTest.sourceId>, "orderingProviderId" : <Prerequisite Info>, "internalNote" : "An example note.", // Optional "externalNote" : "An example note.", // Optional "collectionDate" : "1999-12-11T18:11:25.343-0800", "transactionDate" : "2017-12-07T13:38:00.000-0800", "observationDate" : "2017-12-07T13:38:00.000-0800", "versionDate" : "2017-12-07T13:38:00.000-0800", "reviewWithPatient" : true, "observations" : [ {
+"observationDate" : "1999-12-11T18:11:25.343-0800", "observationNote" : "Example note", // Optional
+"observationFlag" : Flag value - description: L - Below normal | H - Above
+normal | C - critical | * - abnormal, // Optional "observationValue" : "13.71", "observationNumber" : 13.70999,
+"observationUnits" : <LabResult.units>,
+"label" : "Blood pressure - first reading", // Required - The display name of
+the observation
+"resultId" : <LabResult.resultId>,
+"observationRange" : <LabResult.referenceRange> } ],
+"metadata" : { // Metadata is optional "property1" : "...", "property2" : "..."
+}}
+Updating or Adding to a Lab Group
+The API allows additional observations to be attached to a lab group, or for an observation to update an existing observation. For each addition or modification to a lab group and its contained data objects, a new lab group is created which references the first base lab group as show below.
+Adding/Updating to a lab group Lab Recipients and Reviews
+830
+
+ The API allows for specifying which providers should review the lab group and it’s values. These reviewing providers are the recipients of the lab and a list of the provider IDs are sent in the body of a PUT /provider-portal/{patientId}/lab-groups/{lab-groupId}/recipients. The API client can also update the reviews for the particular providers using PUT /provider-portal/{patientId}/lab- groups/{lab- groupId}/reviews
+Retrieve Patient Chart Items as PDF
+As part of generating documentation to send to other providers (such as when referring a patient to a specialist), Accuro users are include items from a patient’s chart. These can include:
+Medical history (diagnoses, medications etc.) Encounter notes Medical documents
+Lab results
+These items are included in a PDF document which is called a Generated Letter. At a high level, the workflow is: 1. Accuro user creates a
+generated letter and attaches chart items
+1. Accuro user launches CDS link to integrating application (that’s your application!)
+2. Using the Accuro context (current patient and user), retrieve the list of generated letters 4. User is shown list and selects the desired generated letter
+1. Application retrieves
+generated letter contents as a PDF
+The steps to retrieve a generated letter with the Accuro API is describe below. Listing available Generated Letters
+Applications can retrieve the list of generated letter metadata. To minimize the potential of applications retrieving the wrong generated letter the list is filtered by two required filters: the patient and the user that created the letter.
+The minimal request to retrieve the list of generated letters is:
+GET /v1/provider-portal/generated-letters?patientId={id}&userId={id}
+Using a CDS Link to get patientId and userId
+A CDS Link in Accuro allows an external web page to be loaded from Accuro and provides the option to include some Accuro context as part of the URL. When patient and user context is configured in a CDS link, applications will receive the context like so:
+URL Loaded: https://{url to web page or application}?userId={id}&patientId={id}
+Applications can parse out the query parameters and use those values to construct the list generated letters request.
+Generated Letter Metadata
+Fields that are helpful for users to identify the correct generated letter are:
+appointmentId if the user knows what appointment the letter is attached to
+title which is a short description the user can enter into Accuro for reference later
+status Generated letters with a FILE_READY status indicates that the PDF document is available and has not been processed before. Applications will be able to update this status to indicate the generated letter has been retrieved and should not be shown.
+Example Generated Letter Metadata
+{
+"id" : 11,
+"letterId" : 12, "letterVersion" : 2, "physicianId" : 11, "officeId" : 10, "userId" : 9,
+831
+
+ "targetId" : 11, "appointmentId" : 10, "patientId" : 11,
+"cc" : 0, "withCoverSheet" : true, "finalized" : true, "withAttachments" : true, "queue" : true,
+"status" : "FILE_READY",
+"targetType" : "physician",
+"title" : "A good title",
+"generateTo" : "Doctor David", "generatedTime" : "2024-06-27T00:00:00.000", "username" : "Doctor David", "extension" : "pdf"
+}
+API Reference
+Get Generated Letter PDF Content
+Once a user has selected the intended generated letter applications can call:
+GET /v1/provider-portal/generated-letters/{id} with the ID of the chosen generated letter Example Generated Letter Content
+--uuid:2202b992-5d86-4162-acfc-52f1bd4c15bf Content-Type: application/json Content-Transfer-Encoding: binary Content-ID: <0>
+{"id":11,"letterId":12,"letterVersion":2,"physicianId":11,"officeId":10,"userId": Note Title","generateTo":"Doctor David","generatedTime":"2024- 06-27T00:
+--uuid:2202b992-5d86-4162-acfc-52f1bd4c15bf Content-Type: application/pdf Content-Transfer-Encoding: binary Content-ID: <1>
+<PDF Binary Data>
+The response is a multipart response and contains both the metadata and the PDF binary content
+of the generated letter.
+Applications will likely be required to manually parse out the binary content of the PDf themselves.
+Tips for Parsing a Multipart Response Extract boundary value
+The response will have Content-Type: multipart/form-data; boundary={boundary value}. Like the above example response, the boundary will be similar to: uuid:2202b992-5d86-4162-acfc- 52f1bd4c15bf.
+Extracting the binary content part
+Using the boundary value contained in the Content-Type header, convert the response into an ASCII encoded string. Converting to ASCII allows to easily parse out the response and also determine the exact byte position that the binary content starts at.
+Once the position of the binary content is known (and it’s length):
+Get the raw bytes of the response
+Using the start position and length of the binary content, slice out the bytes of the PDF content from the response Use the binary content (e.g. convert to base64, pass to a renderer etc.)
+Javascript snippet that parses binary content and converts to base64 response.arrayBuffer().then(ab => {
+// Decode bytes to a single byte encoded format (ASCII) var text = new TextDecoder("ascii").decode(ab); // Split response into parts.
+// You should use the boundary value in the Content-Type header var parts = text.split(/--uuid:.*/gi);
+// ASSUMPTION for simplicity: binary content is at // position 2 of the parts array
+832
+
+ // Also have to parse out the metadata of the part var pdfString = parts[2].split("\r\n\r\n")[1].trim(); // Find the start and end byte position of the pdf string
+9
+0
+var startByte = text.indexOf(pdfString); var endByte = startByte + pdfString.length; // Out of the original response bytes, slice only the binary PDF content
+var pdfArrayBuffer = ab.slice(startByte, endByte);
+// Convert bytes to base64 and print
+console.log(
+btoa(String.fromCharCode.apply(null, new Uint8Array(pdfArrayBuffer)))
+); });
+API Reference
+Updating the Generated Letter status
+Applications can mark the generated letter as FILE_RETRIEVED. This allows applications to ignore
+generated letters they have already processed or have been processed by another application. POST /v1/provider-portal/generated- letters/{id}/status with a body containing FILE_RETRIEVED. API Reference
+Upload a Document to Patient Chart
+Accuro API provides a way to upload PDF documents to a patient’s chart. Documents on a patient’s chart are placed into folders and sub- folders. These folders and sub-folders can be retrieved by applications and their ID values used to place the document in the correct location (folder and sub- folder) on a patient’s chart.
+Retieving folders
+To retrieve folders, applications can GET /v1/provider-portal/folders which returns a list of folders and any sub-folders contained within each folder.
+Example Response
+{
+"id": 2,
+"name": "Labs", "subFolders": [{ "id": 2,
+"name" : "Reports" }, {
+"id": 3,
+"name": "Full Results" }]
+}
+API Reference
+Creating folders
+Applications may want to create folders that are specific to the application. This may help users identify documents that have been uploaded by your application. Accuro users always have the option to assign the document to another folder.
+To create a folder POST /v1/provider-portal/folders with: { "name": "new folder", "subFolders": [
+833
+
+ {
+"name": "new subfolder1"
+}, {
+"name": "new subfolder2" }
+]
+}
+API Reference
+Uploading the document
+Now that folders and sub-folders can be retrieved, the upload document request can be built.
+The upload document request accepts multipart/form-data as the content of the request. It’s recommended that applications use a library to construct the form data. The form data contains 2 fields: details and the document.
+details
+The details field is populated with a stringified JSON object containing metadata about the
+document like filename, patient, provider etc.
+{
+"file_name": "test.pdf",
+"folder_id": 3,
+"sub_folder_id": 3, // Optional and Accuro may not have sub-folders enabled "patient_id": 3, "description": "A helpful description",
+"document_date": 2019-01-31, // Date document is stamped with - Optional
+defaults to current time
+"received_date": 2019-02-31, // Date document was received by Accuro - Optional
+defaults to current time
+"date_created": 2019-03-31, // Date document was created - Optional defaults to
+current time
+"reviews": [ {
+"physician_id": 3, // A valid provider ID. A list of providers can be retrieved via the /v1/providers endpoint
+"reviewDate": 2019-01-31 // When this exists, this marks the document as 'reviewed' and will not appear in the providers inbox
+}
+] // Optional - if omitted document will appear as unassigned }
+Example: Setting the document as ‘Unassigned’
+The following details object is an example of how to make the document get marked as ‘Unassigned’ in Accuro’s Home > Document section.
+{
+"file_name": "test.pdf",
+"folder_id": 3,
+"sub_folder_id": 3,
+"patient_id": 3,
+"description": "A helpful description", "documentDate": 2019-01-31, "receivedDate": 2019-02-31, "dateCreated": 2019-03-31, "reviews": null
+]
+834
+
+ }
+Example: Sending the document to a provider to review
+The following details object is an example of how to send the document for a provider to review. {
+"file_name": "test.pdf",
+"folder_id": 3,
+"sub_folder_id": 3,
+"patient_id": 3,
+"description": "A helpful description", "documentDate": 2019-01-31, "receivedDate": 2019-02-31, "dateCreated": 2019-03-31,
+"reviews": [ { "physician_id": 3 },
+{
+"physician_id": 4
+}
+]
+}
+If multiple review items are included then the document will be sent to each provider specified in the request. Example: Marking the document as ‘reviewed’
+The following details object is an example of how to mark the document as ‘reviewed’. The document will not appear in the provider’s inbox.
+{
+"file_name": "test.pdf",
+"folder_id": 3,
+"sub_folder_id": 3,
+"patient_id": 3,
+"description": "A helpful description", "documentDate": 2019-01-31, "receivedDate": 2019-02-31, "dateCreated": 2019-03-31, "reviews": [
+{
+"physician_id": 3, "reviewDate": 2019-01-31
+}
+]
+}
+document
+This field in the form data should contain the raw bytes of the document file that the application is uploading to the patient’s chart. API Reference
+Combined Appointment, Patient, and Provider data For all appointments, Accuro API is able to provide appointment + history, patient, provider, and
+office information in a single endpoint: the /v2/materials/appointments endpoint. GET {Accuro API base url}/rest/v2/materials/appointments? uuid={Accuro
+uuid}&startDate={start}&endDate={end}&pageSize=50&startingId=0 Other filter query parameters include:
+835
+
+ providerId Retrieve appointments for a specific provider
+officeId Retrieve appointments for a specific office. Multiple offices can be provided
+e.g. officeId=1234&officeId=4321
+includeNullOffice Retrieves appointments not associated with any office. This can occur if importing appointments from another source
+API Reference Paginated results
+Results returned by the API are paginated with a default page size of 25 and a max page size of 50. You can set the page size by passing the desired size in pageSize query parameter. Each response will contain:
+{ ...,
+count: {the number of items included in the response. Usually is the same as the pageSize}, lastId: {the next value for the startingId query parameter},
+total: {the total remaining records, including the items in the current page} }
+Determining the last page of results
+There are two recommended approaches for determining when all results have been received and you have the last page of data.
+1. When total is less than or equal to pageSize you have received all the pages and data. 2. When you request the next page and total, count, lastId is 0.
+Example of multiple results
+Assuming a pageSize of 50 and a total of 120 appointments.
+Request 0
+To request the first page of appointment data, set ?startingId=0.
+GET {Accuro API base url}/rest/v2/materials/appointments?uuid={Accuro uuid}&startDate={start}&endDate= {end}&pageSize=50&startingId=0
+{ ...,
+count: 50,
+lastId: 123456789, total: 120
+}
+Request 1
+GET {Accuro API base url}/rest/v2/materials/appointments?uuid={Accuro uuid}&startDate={start}&endDate= {end}&pageSize=50&startingId=123456789
+{ ...,
+count: 50,
+lastId: 234567891, total: 70
+}
+Request 2
+GET {Accuro API base url}/rest/v2/materials/appointments?uuid={Accuro uuid}&startDate={start}&endDate= {end}&pageSize=50&startingId=234567891
+836
+
+ { ...,
+count: 20,
+lastId: 345678912, total: 20
+}
+Since the total (the amount of remaining items) is 20 and pageSize is 50 then all items and pages have been retrieved. The lastId returned here can be used in another request at a later time to retrieve any new or updated appointments.
+Request 3 - No more results
+GET {Accuro API base url}/rest/v2/materials/appointments?uuid={Accuro uuid}&startDate={start}&endDate= {end}&pageSize=50&startingId=345678912
+{ ...,
+count: 0, lastId: 0, total: 0
+}
+Request 4 - After some appointments get created/updated
+Updated and new appointments will be added to the end of the list. They can be retrieved by requesting the next page(s). Assuming 10 appointments were created or updated after last request.
+GET {Accuro API base url}/rest/v2/materials/appointments?uuid={Accuro uuid}&startDate={start}&endDate= {end}&pageSize=50&startingId=345678912
+{ ...,
+count: 10,
+lastId: 456789123, total: 10
+}
+Adding Encounter Notes to a Patient’s Chart
+Notes (letters) contain information, such as progress notes or summaries, related to an interaction with a patient (which may be an appointment, phone call, an interaction with a clinical tool etc). Accuro API provides the ability to create notes on a patient’s chart and format this content using the Rich Text Format.
+Letter/Note Types
+Accuro users can create different types of letters/notes. You should retrieve the list of available types configured in Accuro and present these to the user to select the appropriate type.
+GET {Accuro API base url}/rest/v1/provider-portal/letters/types?{Accuro uuid} [
+{
+typeId: 1,
+typeName: "Clinical Note", abbreviation: "CN"
+} ];
+API Reference
+Creating a letter/note
+After selecting the specific type for the letter, you can now create the letter/note. PUT {Accuro API base url}/rest/v1/provider-portal/letters
+837
+
+ Request Body
+{
+typeId: 1, // Required
+patientId: 1, // Required
+providerId: 1, // Optional
+appointmentId: 1, // Optional - Used to associate this letter/note with an
+appointment
+title: "Summary from your Application", // Required content: "
+{\\rtf1\\ansi\\n{\\fonttbl\\f0\\fnil\\Monospaced;}\\n{\\colortbl\\red0\\ \\red166\\green169\\blue0;\n\\red0\\green0\\blue170;}\\n\\b Your content here --\\~ \\n}\\n" // Required API Reference
+Plain Text
+For simple notes that don’t require any formatting, you are able to just provide a string to the
+content field like: content: "The patient has 100% recovered!". Rich Text Format
+If your application requires notes to be formatted and styled, you are able to provide a Rich Text Format file to the content field.
+The RTF Pocket Guide is a good resource for understanding the basics of RTF syntax. Accuro and Accuro API do not guarantee that all syntax is supported. You should test to ensure that the RTF features you are using are supported. If things are not correctly formatted, it’s likely that the particular keyword that is not rendering correctly is not supported.
+}
+g
+Accuro utilizes RTFEditorKit to display letters/notes which does not support all RTF features like images and tables.
+Character Encoding
+You should only send ASCII characters to ensure no characters become mangled.
+Accuro Providers and Offices Offices Offices may represent:
+distinct real-world offices that contain distinct or shared providers
+various groups within a single real-world office
+distinct service types or functions the clinic provides like walk-ins, online-booking, or a family doctor clinic etc. custom groupings to address organizational needs
+You should provide an ability for Accuro users to specify which office(s) your application should be interested in and interact with. For example, appointments need to be associated with an office but schedule data is only associated with a provider. In order to know what office to populate when creating an appointment your application should provide a way for users to indicate which office to use.
+Retrieving the list of offices
+To provide a list of offices to display to users so they can indicate the appropriate office to use in
+API interactions:
+GET {Accuro API base url}/rest/v1/offices?uuid={Accuro uuid} [
+{
+officeId: 12,
+name: "Test Office", address: {
+street: "102 Maple Street", city: "Vancouver", postalZip: "A1A2B2", locationId: 1,
+note: "A quick note.", type: "type", start: 2017,
+838
+
+ end: 2017
+}, officePhone: {
+phoneId: 1,
+number: "(123) 456-7890", ext: "112",
+equipType: "Cell",
+usage: "Active",
+notes: "Only available between 8am and noon.", order: 2, contactType: "Business"
+}, fax: {
+phoneId: 1,
+number: "(123) 456-7890",
+ext: "112",
+equipType: "Cell",
+usage: "Active",
+notes: "Only available between 8am and noon.", order: 2, contactType: "Business"
+}, email: {
+emailId: 1,
+type: "Business",
+address: "contact@doctor.com", order: 1
+},
+website: " Google ", facilityNumber: "132", abbreviation: "ABBRV", active: true
+} ];
+API Reference
+Providers
+Providers can belong to multiple offices and are often required to be included when creating resources via the Accuro API (e.g. encounter letters/notes, labs, appointments etc.).
+Retrieve list of providers in an office
+To retrieve a list of providers for a specific office:
+GET {Accuro API base url}/rest/v1/providers/offices/{officeId} [
+{
+providerId: 1, statusId: 1, typeId: 1,
+title: "Sir", firstName: "Arthur",
+middleName: "Conan", lastName: "Doyle", suffix: "Sr.", address: {
+street: "102 Maple Street", city: "Vancouver", postalZip: "A1A2B2", locationId: 1,
+note: "A quick note.", type: "type", start: 2017,
+end: 2017
+  }, phones: [
+839
+
+ {
+phoneId: 1,
+number: "(123) 456-7890",
+ext: "112",
+equipType: "Cell",
+usage: "Active",
+notes: "Only available between 8am and noon.", order: 2, contactType: "Business"
+}, {
+phoneId: 1,
+number: "(123) 456-7890",
+ext: "112",
+equipType: "Cell",
+usage: "Active",
+notes: "Only available between 8am and noon.", order: 2, contactType: "Business"
+} ],
+email: {
+emailId: 1,
+type: "Business",
+address: "contact@doctor.com", order: 1
+},
+specialty: "Family Practice", defaultOffice: null
+} ];
+API Reference
+Access to the Accuro Waitlist
+The Accuro Waitlist allows clinics to track patients who require an appointment currently not available in the Accuro scheduler. When an appointment availability becomes available, clinics are able to find which patient is next in priority to be booked for an appointment at that time.
+Accuro Waitlist
+Accuro API enables client applications to get, create, and update consult waitlist booking requests.
+Searching Waitlist Requests
+You are able to search and retrieve waitlist requests through the following endpoint and the results can be optionally filtered by a specific waitlist provider, patient or waitlist consult status.
+GET {Accuro API base url}/rest/v1/provider-portal/waitlists? waitlistProviderId=1&patientId=1&consultStatus=Booked&startingId=0&pageSize=50
+{ "contents": [
+{
+"id": 1000,
+"waitlistProviderId": 2, "patientId": 12, "consultPriority": "Emergency", "consultStatus": "Booked", "consultType": "EMG Consult", "expedited": false, "providerTypeId": 12, "referralTriaged": true, "notes": "string",
+"complaint": "string", "referringProviderId": 0,
+840
+
+ "specificProviderRequested": true,
+"firstAvailable": false,
+"referredOut": true,
+"consultRefusedReason": "string",
+"firstConsultDate": "2020-03-31T18:37:45.291Z", "firstContactDate": "2020-03-31T18:37:45.291Z", "patientAvailableForConsult": "2020-03- 31T18:37:45.291Z", "tentativeDate": "2020-03-31T18:37:45.291Z", "urgentDate": "2020-03-31T18:37:45.291Z",
+"referralDate": "2020-03-31T18:37:45.291Z", "targetDate": "2020-03-31T18:37:45.291Z", "requestDate": "2020-03-31T18:37:45.291Z", "altWaitlistProviderId": 1,
+"caseState": "Active",
+"caseNumber": 1,
+"caseCloseDate": "2020-03-31T18:37:45.291Z",
+"followUp": false,
+"bookedDate": "2020-03-31T18:37:45.291Z", "decisionDate": "2020-03-31T18:37:45.291Z", "patientAvailableForSurgery": "2020-03- 31T18:37:45.291Z"
+} ],
+"count": 1, "total": 1, "lastId": 1000
+}
+Pagination
+Results returned are paginated. The maximum pageSize is 50 with a default value of 25 if no pageSize parameter is provided. To request the next page, you need to set the startingId parameter to the value of lastId received in the previous request.
+The total field contained in the response is the total number of results and remains constant as you requests additional pages. When you receive a response like:
+{
+"contents": [],
+"count": 0, "total": 15, "lastId": 0
+}
+You have reached the end of the results.
+Creating/Updating a Waitlist Request
+Your application is able to create waitlist requests by making the following request:
+POST {Accuro API base url}/rest/v1/provider-portal/waitlists
+{
+"waitlistProviderId": 10003, "patientId": 7, "consultPriority": "Emergency", "consultStatus": "Waiting", "consultType": "Office Consult", "referralDate": "2020-03-31", "requestDate": "2020-03-31"
+}
+Above is an example containing only the required fields needed to create a waitlist booking request. Both the referralDate (date referral was sent) and the requestDate (date referral was received) are required and, in most cases, will be the same date.
+The equivalent action in Accuro is shown below with the relevant fields highlighted. Note that currenly only access to Consult Waitlist Requests is available.
+New Waitlist Request Adding Attachments
+841
+
+ Your application is able to attach either a document or letter (a.k.a encounter note) to an existing waitlist request. In order to successfully add an attachment, you will need:
+An existing Waitlist Request and it’s ID
+An existing document or letter that was previously created and it’s ID
+Below is an example request:
+POST {Accuro API base url}/rest/v1/provider- portal/waitlists/{waitlistRequestId}/attachments
+[
+{
+itemId: 60040, itemCategory: "Document"
+} ];
+Waitlist Dates and Additional Information
+If you recall Searching Waitlist Requests, it’s possible that more fields exist for a particular waitlist request than just the required fields and dates, e.g. firstConsultDate, patientAvailableForConsult etc. These dates are optional when creating a waitlist request due to the fact that waitlist dates are highly configurable.
+Clinics are able to configure which dates are shown for the Consult tab when creating or viewing the details of a waitlist request. Your application should consult with the clinic on which dates exist on the Consult tab and what types of dates are expected to populate each field.
+The other additional fields, like expedited, firstAvailable and others, can be populated when creating or updating a waitlist request. These are optional as clinics may like to populate these fields themselves or not use these at all. Clinics should be consulted for how these fields should be populated.
+Waitlist Providers
+To create a waitlist request associated with a provider, that provider needs to be configured as a waitlist provider. You are able to retrieve the list of providers currently configured for the Accuro Waitlist via the GET /v1/provider-portal/waitlist-providers which returns a result like:
+[
+{
+id: 20003,
+practitionerNumber: "1234", payeeNumber: "",
+firstName: "David",
+lastName: "Doctor", phoneNumber: "(___) ___-____", phoneExt: "", providerId: 12345,
+active: true
+} ];
+The ID value 20003, is the Waitlist Provider ID and must be used as the waitlistProviderId field.
+The providerId field can be used to cross-reference this list with the /v1/providers endpoint. Supporting Information
+You are able to retrieve the list of current consult priorities, statuses, types and complaints through the following endpoints:
+GET /v1/provider-portal/waitlist-consult-priorities GET /v1/provider-portal/waitlist-consult-statuses GET /v1/provider-portal/waitlist-consult- types
+GET /v1/provider-portal/waitlist-consult-complaints
+The create/update waitlist request endpoint expects the string value of the priority, status, type and complaint.
+842
+
+Integration - Oscar
+DBs = Central DB (phelix web app DB ), microservice DBs microservices involved in oscar integration
+1. appointment service
+2. appointment ops
+3. patient management service
+4. partner service
+5. emr integration service
+6. web app integration util service 7. checkpoint service
+8. notification service
+9. telecom service
+service
+appointment service appointment ops
+patient management service
+partner service (referred as clinic in phelix web app) emr integration service
+web app integration util service
+checkpoint service
+notification service
+telecom service
+DB
+yes (appointment_db)
+yes (appointment_ops_db)
+yes (patient_db) yes (partner_db) NO
+phelix web app DB yes (checkpoint_db) yes (notification_db) NO
+DB type
+SQL SQL
+SQL SQL
+SQL Mongo DB Mongo DB
+role
+appointment business logic handling
+handles operations of appointment sync and real time sync process
+handles patient related details and business logic handles partner details and related business logic
+handle integration with all emr and related business logic handle all interactions with phelix web app central DB handles checkpoint related logics
+handles notification related logic
+handles integration with telecom infra and telnyx
+                                    Create appointment in phelix it should reflect in microservice DB and oscar UI
+Updated appointment should be reflected in microservice and oscar UI
+appointment which are created/updated in oscar should reflect in phelix and microservice DB Sync appointment
+sync by time range (specified start and end date)
+will fetch details from oscar to phelix for given start and end date will create patient if not exist in phelix and microservice
+it should show how many appointment has been synced and whats the status of sync process real time sync
+will fetch details from oscar to phelix from current time with specific limit after configuration for oscar integration is completed on UI (phelix web app UI)
+will fetch details from oscar to phelix for given start and end date will create patient if not exist in phelix and microservice
+once these sync is tested, need to test all the other workflows which are using this microservice virtual waiting room and way finding (update)
+form builder
+integrated check-ins (update)
+walk-in bookings (create) IVR
