@@ -1,0 +1,921 @@
+① Problem description
+The clinics do not have the ability to setup virtual agents e.g. currently their IVRs are manually configured by the dev team
+
+The virtual agents are limited to Phone IVRs right now, and important channels like SMS and Web Chatbots are missing
+
+② Proposed value
+Introducing new channels for virtual agents and automating the current channels would allow the clinics to cater to more patients
+
+The virtual agents will also enable clinics to automate certain types of communication where a warm body is not required
+
+③ Proposed solution
+Give users the ability to create virtual agents which can be run on Phone (IVR), SMS and Website (Chatbot)
+
+Designs - Phelix.AI 
+
+④ Scope
+Navigation - Main Menu > Manage (Control Panel) > Virtual Agent (new menu option)
+
+Improve general layout of the Virtual Agent tab in the Control Panel
+
+Clean up the menu
+
+Three tabs - Phone, SMS, Chatbot
+
+Once card populated per account (based on the type of account - primary, speciality, or COVID screener)
+
+User is able to buy a number for Phone/SMS (via Telnyx integration)
+
+Clicks on Purchase Number
+
+Searches for numbers
+
+Search results show up, or
+
+No number is found
+
+Search again
+
+Chooses a number
+
+User is able to assign the number for Phone/SMS
+
+Clicks on ‘No number assigned’
+
+Number gets assigned to that flow
+
+Website Chatbot
+
+Workflow Builder
+
+3 types of steps
+
+Input step
+
+Welcome message
+
+Move the Input Message from the Paths to the Welcome message
+
+Add data element
+
+Data pulled from the clinic table in the database e.g. clinic name, location etc.
+
+E.g. as in https://dev.blockhealth.co/sms_template?template=dd1b41fa-1743-4edd-808a-25c72836ed99
+
+Add IVR element
+
+Select element
+
+Adds path (not options)
+
+E.g. as in https://dev.blockhealth.co/sms_template?template=dd1b41fa-1743-4edd-808a-25c72836ed99 (when you add Response Element)
+
+Add AI element
+
+Select intent
+
+Adds path (not options)
+
+Types of outputs
+
+Welcome message
+
+Setting variables
+
+Routing
+
+(Route to reception - enter phone number for reception
+
+(End call - end the call
+
+(New step
+
+((Input step - get more info before result – loops again
+
+((Patient step - getting patient information
+
+((Action step - action that gets taken
+
+Patient step
+
+In figma
+
+Action step
+
+Write out all possible IF statements
+
+ⓘ Articulate what is in scope, and what is not. It is important to ensure everyone is on the same page about how big this is and how much we want to invest. Your answer here may change as the initiative is discussed with others.
+
+⑤ Dependencies
+To be added
+
+ⓘ List out which external people or teams are implicated by this problem and/or solution.
+
+⑥ Success Criteria
+To be added
+
+ⓘ What measures, if any, will help us to define success?
+
+Navigation
+Control Panel > Virtual Agent > Flow Builder
+
+Background
+The Flow Builder will allows the clinics to setup their own workflows for Phone IVRs, SMS and Website Chatbot. The flow builder can have three types of steps:
+
+Input - contains qualifying questions for the patient to enter the flow, there can be multiple input steps; consists of a statement and response elements
+
+Verify - used to identify the patient or the physician who is calling
+
+Action - each flow will have multiple actions depending on what the patient wants to do; the input from the user will help determine the actions
+
+Each step can have three types of elements:
+
+Data - populates data from the database e.g. clinic name, clinic location, patient name etc.
+
+Response - determines what path the patient needs to follow e.g. what happens when patient presses 1, or 2 etc.
+
+AI - doesn’t impact the patient, but allows Phelix to collect data from the flow (activates listening)
+
+Note - to see the Data and Response elements in action, try editing a SMS template in the Checkpoint Builder
+
+Designs
+https://www.figma.com/proto/RxKtfKm83tT9wOuWVVjYSD/Phelix-Web-App?node-id=1192%3A0 
+
+Requirements
+Input
+A flow always starts from the input step, and welcome message is almost always the first input step in the flow
+
+Types of outputs
+
+Set variables 
+
+Caller
+
+Set variable values
+
+Existing patient
+
+New patient
+
+Physician
+
+Pharmacy
+
+Reason for call
+
+New appointment
+
+Update appointment
+
+Routing
+
+Agent - enter phone number for reception
+
+End call - end the call
+
+New step
+
+Input step - get more info before result – loops again
+
+Patient step - getting patient information
+
+Action step - action that gets taken
+
+Patient
+https://www.figma.com/file/RxKtfKm83tT9wOuWVVjYSD/Phelix-Web-App?node-id=2393%3A15748 
+
+Action
+Update appointment (confirm or cancel appointment)
+
+If appointment not found
+
+Custom message 
+
+Route
+
+If multiple appointments found
+
+To select <date> on <time>, please press 1
+
+To select <date> on <time>, please press 2 
+
+…. Up to 9 appointments until appointment selected
+
+If single upcoming appointment found or selected
+
+Custom message
+
+Confirm appointment (yes/no)
+
+Status code update
+
+Confirm Message
+
+Route
+
+Cancel appointment status (yes/no)
+
+Status code update
+
+Cancel Message
+
+Route
+
+If single upcoming appointment found within x hours (on/off)
+
+Define x (e.g. 24 hours)
+
+Custom message
+
+Confirm appointment (yes/no)
+
+Status code update
+
+Confirm Message
+
+Route
+
+Cancel appointment status (yes/no)
+
+Status code update
+
+Cancel Message
+
+Route
+
+Book walk-in appointment
+
+Schedule Template code input
+
+Appointment creation status
+
+Capture reason (yes/no)
+
+Same day only or multiple days
+
+Book family doctor appointment
+
+if family doctor not found
+
+Custom message
+
+Route
+
+Schedule Template code input
+
+Appointment creation status
+
+Capture reason (yes/no)
+
+Basic Message
+
+Enter custom message
+
+Route
+
+Referral Status
+
+If status = incomplete (yes/no)
+
+Custom message
+
+Route
+
+If status = triage (yes/no)
+
+Custom message
+
+Route
+
+If status = auto-book (yes/no)
+
+Custom message
+
+Route
+
+If status = booked (yes/no)
+
+Custom message
+
+Route
+
+Resources
+Name
+
+Location
+
+Flow Builder Kick-off 14th May 2021
+
+Flow Builder w/ Mayank 11th May 2021
+
+Flow Builder w/ Hassaan 15th April 2021
+
+AbleCare IVR Flow (which will eventually be created using the flow builder)
+
+https://docs.google.com/document/d/1xVWCNYdPEPXlmIhHIZx8p81TKZOwRX0Z03I5RcExUVg/edit 
+
+Derm Lab IVR Flow (which will eventually be created using the flow builder)
+
+https://drive.google.com/file/d/1NOJmaAaoU8zaMfzqoqMUqt0-XIX3VVrY/view?usp=sharing 
+
+Akumin IVR Flow
+
+To be added
+
+IVR 
+
+ex use case : patient calls in, wants status update on referral order (all automated in Phelix) 
+
+Contactcenter IVR Studio 
+
+4g style dev environment 
+
+identify a point of contact (dial#, email, anything) that is receiving an interaction --- you can then route that interaction (typically routed to an agent) 
+
+or can build call deflection workflow 
+
+can drop in our own java script 
+
+need to know how to edit IVR studio to inject our code 
+
+and need to know the bound of what we can write in our code 
+
+nice in contact : https://developer.niceincontact.com/API
+
+check out admin APIs, real time data APIs and maybe user APIs
+
+Other Resources
+Name
+
+Link
+
+ 
+
+RingCentral Meeting Notes 2021
+
+https://docs.google.com/document/d/1tovbECSYjKbs1oYys8dMYqzK3q5ut-vJ/edit 
+
+ 
+
+Requirements
+The first item will be the incoming phone setup using freepbx, for both IVR and real time TTS streaming for conversational AI and automated deployments via the Telnyx SIP Trunk
+
+Acc to Mahfuz, incoming phone setup using freepbx is already done?
+
+new short-term solution
+
+Keep flows on PHP and run on it’s own container (instead of the Web App)
+
+Aditya and Tutul will work on it as soon as the current migration and deployment is done
+
+Backend work is creating webhooks for the VA - Flow Builder, Mike has mapped out what’s required, need a BE engg. to work on it
+
+Reliability, scalability and dimensioning - Mahfuz knows what to do here
+
+setup weekly meeting with Mahfuz (and Mike, Hassaan, Tutul) and kick-off the project
+
+ 
+
+Phelix uses two SIP providers
+
+Twilio
+
+Telnyx
+
+ 
+
+Old projects
+
+We developed two Cloud PBX in Google Cloud, setup trunking with Telnyx, using which a user is able to make and receive calls
+
+Using Telnyx SDK API, we developed webhook application to send Fax and SMS
+
+ 
+
+current solution
+
+currently we’re using Telnxy webhooks running on PHP servers
+
+long-term solution
+
+end goal is to use our own webhooks running on Telecom MX
+
+short-term solution
+
+use Telnyx webhooks on Telecom MX, and Twilio for Conversational MX
+
+based on the load we get, we can determine scalability for long-term solution
+
+new short-term solution
+
+Keep flows on PHP and run on it’s own container (instead of the Web App)
+
+Aditya will work on it as soon as the current migration and deployment is done
+
+ 
+
+Note from Hassaan:
+
+The first item will be the incoming phone setup using freepbx, for both IVR and real time TTS streaming for conversational AI and automated deployments via the Telnyx SIP Trunk
+
+Acc to Mahfuz, incoming phone setup using freepbx is already done?
+
+Example
+
+PBX system at home
+
+every room has a desk phone with an extension
+
+Legacy system was manual switch-based (remember switchboards?)
+
+Modern systems turn any server to a telephonic switch
+
+In cloud if you have a Linux node, you can deploy your own PBX on top of Linux
+
+If one user is registered on that server with a user id, they can directly call another registered user using digital credentials (virtual DID)
+
+In an advanced setup, our PBX system can be used to call phone lines from third-party providers
+
+This uses SIP trunking provide by Twilio and Telnyx (also in Canada), need to use Telnyx for Canadian clinics due to data privacy
+
+Telnyx is the bridge between our Cloud PBX and the Telecom providers
+
+Our own PBX is needed to provide Phelix users dedicated (virtual) phone numbers for IVR and SMS, called DIDs, and these DIDs are then mapped in Telnyx to communicate with Telecom providers (and used like normal SIM)
+
+Using Cloud PBX we can prepare a programmable IVR menu, can also be used for Fax and SMS
+
+If we plan to replace Telnyx, only config in our Cloud PBX needs to change, there won’t be any redeployment
+
+Meeting Notes
+Date
+
+Notes
+
+8th Apr 2021
+
+Move current PHP Telnyx IVRs which are on WebApp to its own service/server
+
+Create Flow Builder
+
+Phone
+
+Should be able to work with IVR hooks (like we are doing now with Telnyx)
+
+scalability is important
+
+two instance running on Asterix
+
+if can’t handle load, scale vertically
+
+Should be able to work with Conversational AI (layer in STT)
+
+Use STT package of Asterisk to convert speech to text
+
+Endpoint built in Python which consume this text
+
+Website Chatbot
+
+Use AGI/ARI for NodeJS
+
+Use APIs to Purchase Phone Numbers
+
+Need two MX
+
+Telecom MX (existing) - interacting with Telnyx, Asterix
+
+Conversation MX (new) - Handle all interactions with phone, chatbot and other channels (omni channel)
+
+Mahfuz
+
+DTMF input forward to MX endpoints
+
+Setup phone number in Asterix, when DTMF values are entered, hit MX API endpoints
+
+Setup STT package in Asterix, FreePBX
+
+Sadique
+
+Telecom MX
+
+Use AGI/ARI APIs (NodeJS) to create integration with Asterix 
+
+Build Telecom MX API endpoints which will receive DTMF values/input
+
+Flow Builder MX
+
+Orchestrates the path after receiving data from Telecom MXP; pass these values and IVR inputs to Conversation MX, process details, and send back to Telecom MX for IVR outputs
+
+Handles interactions with other MX e.g. Patient, Appointment
+
+User service mesh for synchronous comm b/w MXs
+
+Mayank
+
+Help Sadique architect Telecom and Flow Builder MX
+
+16th April 2021
+
+Sadique needs keys for Telecom MX
+
+Mahfuz needs details on Google STT
+
+Using STT in the app right now, need to discuss with Mike
+
+Sadique suggested looking into MRCP (unimrcp.org)
+
+Google Speech Recognition plug-in
+
+Sadique suggested looking into cephei’s Unimrcp plugin
+
+Sadique can add TTS (XML support) to AGI to keep everything in one place so we can use TTS in the flow builder
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Part Voice Origination Termination
+ 
+
+Created SIP connection and Outgoing, Incoming setting as below:
+
+
+
+
+ 
+
+Created Outbound Voice Profile and tag done as below:
+
+ 
+
+Messaging Profile with webhook
+
+ 
+
+Purchased number and assigned voice and SMS
+
+Extension created same as the purchased number
+
+Freepbx Trunk with SIP setting as below:
+
+ 
+
+Outbound route created
+
+ 
+
+Extensions Same like DID purchased from Telnyx
+
+Inbound route for each extension
+
+ 
+
+Regarding IP whitelist and SIP, Media ports  mentioned  https://sip.telnyx.com/ is also taken care in our platform by below:
+
+ 
+
+SMS Communication
+ 
+
+Web hook of SMS PHP Code:
+
+This PHP located in currently http://35.203.61.89/webhook/index.php
+
+ 
+
+How it works: Each received SMS parse and write the sender, receiver and SMS context in a file named log.txt location is same place http://35.203.61.89/webhook/log.txt
+
+ 
+
+<html>
+
+  <head>
+
+    <title>Text Message Receiver</title>
+
+  </head>
+
+  <body>
+
+    <h1>Text Message Receiver</h1>
+
+    <?php
+
+ 
+
+    $json = json_decode(file_get_contents("php://input"), true);
+
+    $from = $json["data"]["payload"]["from"]["phone_number"];
+
+    $message = $json["data"]["payload"]["text"];
+
+ 
+
+    if($message){
+
+     $fp = fopen('log.txt', 'a');//opens file in append mode
+
+     fwrite($fp, "From: ".$from.PHP_EOL);
+
+     fwrite($fp, "Text: ".$message.PHP_EOL);
+
+     fwrite($fp, PHP_EOL);
+
+     fclose($fp);
+
+    }
+
+   ?>
+
+  </body>
+
+</html>
+
+“log.txt” content:
+
+ 
+
+SMS sending command:
+
+sudo curl -X POST \
+
+  --header "Content-Type: application/json" \
+
+  --header "Authorization: Bearer KEY01740A0976B3A186083C57F073EEC1F6_9y8QxLA0apmYStJb4fFpqN" \
+
+  --data '{
+
+    "from": "+12892744859",
+
+    "to": "+17733022294",
+
+    "text": "Hello Blockhealth Service"
+
+  }' \
+
+  https://api.telnyx.com/v2/messages
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+FAX Communication
+ 
+
+Call control created in Telnyx platform. Node ID of call control is important for FAX
+
+ 
+
+Number purchased and route it for FAX communication in Telnyx
+
+Web hook of FAX PHP Code:
+
+This PHP located in currently http://35.203.61.89/webhook/fax.php
+
+<html>
+
+  <head>
+
+    <title>FAX  Receiver</title>
+
+  </head>
+
+  <body>
+
+    <h1>FAX Receiver</h1>
+
+    <?php
+
+ 
+
+ 
+
+       header('Content-Type: application/json');
+
+       $request = file_get_contents('php://input');
+
+       $req_dump = print_r( $request, true );
+
+ 
+
+       $fp = file_put_contents("fax.txt",$req_dump,FILE_APPEND);
+
+ 
+
+    ?>
+
+  </body>
+
+</html>
+
+ 
+
+How it works:  FAX communication complete flow handle by this web hook PHP and write the log in same location file named “fax.txt” located http://35.203.61.89/webhook/fax.txt
+
+“fax.txt” content:
+
+ 
+
+FAX sending command:
+
+sudo curl -X POST https://api.telnyx.com/v2/faxes \
+
+--data-urlencode "media_url=http://35.203.61.89/fax/faxcontent.pdf" \
+
+--data-urlencode "connection_id=1442091652352050535" \
+
+--data-urlencode "to=+16474767017" \
+
+--data-urlencode "from=+18722315372" \
+
+--header "Authorization: Bearer KEY017424226F95D2A899A94A0304ABD753_FzPvkC5MRuRmHCS7bGPABG"
+
+ 
+
+A complete FAX life cycle events are as below:
+
+{
+  "data": {
+    "event_type": "fax.queued",
+    "id": "48f67c06-606e-413c-8415-d98d3b663732",
+    "occurred_at": "2020-08-25T06:25:09.012949Z",
+    "payload": {
+      "connection_id": "1442091652352050535",
+      "direction": "outbound",
+      "fax_id": "b5eb757b-a024-4f02-8d5c-ab771f892480",
+      "from": "+18722315372",
+      "original_media_url": "http://35.203.61.89/fax/faxcontent.pdf",
+      "status": "queued",
+      "to": "+16474767017",
+      "user_id": "f4ea0e60-4dcf-4d55-9950-17afd88a307e"
+    },
+    "record_type": "event"
+  },
+  "meta": {
+    "attempt": 1,
+    "delivered_to": "http://35.203.61.89/webhook/fax.php"
+  }
+}{
+  "data": {
+    "event_type": "fax.media.processed",
+    "id": "587ec75c-e831-45af-8628-aef43c330a17",
+    "occurred_at": "2020-08-25T06:25:12.232587Z",
+    "payload": {
+      "connection_id": "1442091652352050535",
+      "direction": "outbound",
+      "fax_id": "b5eb757b-a024-4f02-8d5c-ab771f892480",
+      "from": "+18722315372",
+      "original_media_url": "http://35.203.61.89/fax/faxcontent.pdf",
+      "status": "media.processed",
+      "to": "+16474767017",
+      "user_id": "f4ea0e60-4dcf-4d55-9950-17afd88a307e"
+    },
+    "record_type": "event"
+  },
+  "meta": {
+    "attempt": 1,
+    "delivered_to": "http://35.203.61.89/webhook/fax.php"
+  }
+}{
+  "data": {
+    "event_type": "fax.sending.started",
+    "id": "dae04378-472c-4361-918b-80d1056c1ede",
+    "occurred_at": "2020-08-25T06:25:16.327545Z",
+    "payload": {
+      "connection_id": "1442091652352050535",
+      "direction": "outbound",
+      "fax_id": "b5eb757b-a024-4f02-8d5c-ab771f892480",
+      "from": "+18722315372",
+      "original_media_url": "http://35.203.61.89/fax/faxcontent.pdf",
+      "status": "sending",
+      "to": "+16474767017",
+      "user_id": "f4ea0e60-4dcf-4d55-9950-17afd88a307e"
+    },
+    "record_type": "event"
+  },
+  "meta": {
+    "attempt": 1,
+    "delivered_to": "http://35.203.61.89/webhook/fax.php"
+  }
+}
+{
+  "data": {
+    "event_type": "fax.delivered",
+    "id": "72d9c1cd-74ae-4aa3-bdc2-d105311364a8",
+    "occurred_at": "2020-08-25T06:26:42.025331Z",
+    "payload": {
+      "connection_id": "1442091652352050535",
+      "direction": "outbound",
+      "fax_id": "b5eb757b-a024-4f02-8d5c-ab771f892480",
+      "from": "+18722315372",
+      "original_media_url": "http://35.203.61.89/fax/faxcontent.pdf",
+      "status": "delivered",
+      "to": "+16474767017",
+      "user_id": "f4ea0e60-4dcf-4d55-9950-17afd88a307e"
+    },
+    "record_type": "event"
+  },
+  "meta": {
+    "attempt": 1,
+    "delivered_to": "http://35.203.61.89/webhook/fax.php"
+  }
+}
+
+Received FAX:
+
+ Navigation
+Current: Home > Manage > Admin Settings > Manage Users
+
+
+Future: Home > Control Panel > Team Settings
+
+Frontend
+Admin User is able to invite new users to the account
+
+Invitation details
+
+First Name
+
+Last Name
+
+Email
+
+Role
+
+Admin User
+
+Workflow User
+
+Daily User
+
+Once the new user is invited, an email is sent to the new user with the invitation link
+
+All users are able to view a list of all users in the account
+
+Table details
+
+Email
+
+First Name
+
+Last Name
+
+Role
+
+Admin User is able to change the roles of other users
+
+The ability to change roles is deactivated for other type of users
+
+Admin User is able to delete other users (remove them from the account)
+
+Show warning when admin user clicks on the delete button
+
+The ability to change roles is deactivated for other type of users
+
+Backend
+Immediate
+
+test and cleanup current Manage Users
+
+After
+
+User Roles
+
+Admin User
+
+Control Panel
+
+Workflow User
+
+Cannot see Control Panel
+
+Daily User
+
+Can only see Dashboard
+
+User Data
+
+First Name, Last Name, Email, Role
+
+Location (new)
+
+only matters if you’re a Daily User
+
+will only see their location data
