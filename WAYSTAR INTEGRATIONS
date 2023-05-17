@@ -1,0 +1,3331 @@
+Integration - Waystar
+
+
+
+
+Created by Mayank (Unlicensed)
+Last updated: Sep 01, 20215 min read
+16 people viewed
+Background
+Typically when Phelix integrates with EMRs like Oscar, Accuro and INFINITT, the EMRs do the insurance lookup and pass the claims data to Phelix. However, as Phelix is now building a lot of workflows in the patient journey, we decided to take up the insurance processing too. To process insurance claims, Phelix will be integrating with Waystar.
+
+Architecture
+Rewrite Referrals MX, which will interact with Claims MX. Create a microservice (MX) for Claims Processing called Claims MX, which will interface with Waystar
+
+Workflow
+Phelix will receive a referral via Fax, Phone, Email (or any other channel), and create a referral record
+
+As soon as the referral is received, the Referral MX will send the referral data (Patient information, Patient insurance information, Referring doctor, Requested procedure, Priority of the referral, Clinic information (service provider)) to the Claims MX.
+
+As soon as the Claims MX receives this data, it will send the Client ID and Secret to Recondo Auth and get the Token (Page 22-25)
+
+As soon as the Token is received by the Claims MX, it will hit the /loadAccount endpoint in Waystar and pass over all referral data received from the Referral MX
+
+Waystar return with ACK or NACK (Page 17-21)
+
+ACK
+
+Move on
+
+NACK
+
+Phelix user corrects the referral data
+
+Manual intervention could be needed
+
+Phelix repeats this step automatically (click)
+
+AuthInitiate
+
+Load Account processes through all of Waystar’s products (see Page 28 of the API Doc PDF) in the backend (as far as it possibly can) and as there are material changes in the account status, Waystar posts an asynchronous response back to the URL sent in the initial request (provided by Phelix)
+
+After hitting the Load Account once, Phelix is going to receive numerous responses as they account progresses through the insurance eligibility process so it’s important for Phelix to capture and parse the latest response all the time; each subsequent POST should contain the latest data in the payload
+
+If any additional details are needed, Phelix can always use the Retrieve 271 Response endpoint or Retrieve Account Status endpoint
+
+Phelix user will click a button in the UI to initiate a claim
+
+In the backend, we will pass the referral data to Waystar: Patient information, Patient insurance information, Referring doctor, Requested procedure, Clinic information (service provider)
+
+And this data will also be populated in the launched link
+
+If any further info is needed, Phelix user answers clinical questions (if required)
+
+Auth check
+
+Auth not required
+
+Auth required
+
+Waystar Deeplink
+
+Waystar API processes the claim and returns appropriate status (approved, denied, partially-approved etc.) - which can sometimes take days
+
+approved - nothing further
+
+partially approved - patient has to pay
+
+Go to Patient Payment
+
+missing items - submit missing info
+
+Phelix/Phelix user manually or automatically updates the referral data or procedure data
+
+After getting the required data, repeat Claim Submission
+
+denied - patient has to pay
+
+Phelix/Phelix user manually or automatically updates the referral data or procedure data
+
+After getting the required data, repeat Claim Submission or no further action
+
+refer Waystar API docs
+
+Invoice MX Integration
+
+To calculate how much the patient owes
+
+Issue invoices in the Web App
+
+Form Builder Integration
+
+Based on the actions patient has to take for above workflows
+
+Phelix collects copay from the patient using Payment (Smart Element) in Form Builder
+
+The Waystar API endpoint used for this will be EligibilityPlus Processing
+
+Referral MX - Claims MX - Waystar
+
+AuthInitiate and AuthStatus
+
+Sequence diagram for Claims Mx
+
+Waystar Documentation
+Auth Required
+Endpoint to check Prior Authorization. It can take up to 10 business days to approve or deny a prior auth. If the request has been completed properly, meets the insurance provider’s criteria and falls under coverage outlined in the patient’s plan, the request will be approved. If more information is needed, the insurance provider will communicate with the doctor’s office or hospital to sort out the details. But if a denial is issued, a patient could be confronted with delays or rescheduled care, or in some cases an outright inability to get the treatment they need.
+
+Resources
+Name
+
+ 
+
+ 
+
+Akumin stage/production environments
+
+https://api.recondohealth.net/oauth2/token
+
+Client ID: phelix-devpart
+
+Secret: 75bff72d-597b-490c-8c2d-3954bf0903bc
+
+Waystar-Akumin stage/production environments
+
+https://api-stage.recondohealth.net/oauth2/token
+
+Client ID: dev-phelix
+
+Secret: 82cebbc0-2057-4021-92fb-231bc71f37f9
+
+Waystar API Documentation
+
+ 
+
+ 
+
+Waystar Meeting Slide Deck
+
+ 
+
+ 
+
+Deep Link  
+
+The configuration of a Deep Link functionality to launch a url call from Phelix to Waystar’s AuthInitiate web app
+
+Deep Link guide attached
+
+The required browser is Chrome
+
+There is a Waystar AuthInitiate Chrome Extension which is required on each workstation which will access AuthInitiate
+
+AuthInitiate Chrome Extension document attached
+
+ 
+
+ 
+
+ 
+
+Single Sign On
+
+Improves the end user’s experience, adoption and efficiency when accessing AuthInitiate (the solution which semi-automates the submission of an authorization to a payer for a scheduled procedure)
+
+Overview document attached
+
+Provides a high-level overview of the SSO integration
+
+The actual data used for integration in the document will vary from client to client
+
+I will need to set up a call with our internal expert on the SSO to help Phelix with this step when you are ready
+
+ 
+
+ 
+
+Attached Spreadsheet
+
+In order for Waystar to send the specific alerts in the message the alert has to be set to “ON” to receive.
+
+In the tab titled “All Alerts”, column “C” of the spreadsheet we have the following
+
+53 Scope/Categories are defaulted to “ON”
+
+49 Scope/Categories are defaulted to “OFF”
+
+Action Needed: 
+
+Please go through the 102 Scope/Categories and choose the Scope/Categories you would like to have set to “ON” and receive these alerts
+
+Copy the Scope/Categories you have set to “ON” over to the tab titled “ON Alerts”
+
+Please send back to me the spreadsheet
+
+ 
+
+ 
+
+“Status recommended Action” spreadsheet for any WQ and Workflow discussions with the action code that is provided back to Phelix.
+
+ 
+
+ 
+
+Waystar - Revenue Cycle API Overview
+
+
+Created by Mayank (Unlicensed)
+Last updated: Jul 07, 20214 min read
+3 people viewed
+What is the Revenue Cycle API?
+Our Revenue Cycle API allows you to load patient visit details and asynchronously (not in real-time) receive processing status updates as well as request processing details. We built the Revenue Cycle API using Representational State Transfer (REST) principles against predicable URLs. All REST calls follow HTTP rules, and all resources are exposed URLs.
+
+Our platform and revenue cycle content
+Our intelligence platform sits between providers and payers to help translate the many pieces of benefit and cost information in the healthcare revenue cycle. We generate content across the revenue cycle: eligibility, authorization status, patient estimates, and more. We believe good content is key to winning in the revenue cycle. Even with standards like ASCI X12 EDI and related code sets, the resulting responses aren’t enough to tell patient access or back office staff what to do, in some cases don’t return what you need, and in many cases do not even have the information you are looking for. Often, payer websites have more up-to-date data and information than EDI.
+
+Our platform’s set of web-enhanced data, payer rules engines, and workflow actions create better content and more content for you to drive your revenue cycle. We also believe in treating the patient encounter in the revenue cycle holistically, and have combined the majority of our Revenue Cycle API functionality into as few endpoints as possible, while allowing you and your development team to only use what you need.
+
+Products available through the Revenue Cycle API
+The following are the Recondo (now part of Waystar) products that are available using the Revenue Cycle API. However, to use these products you must have them licensed.
+
+SurePayHealth
+Helps hospitals and other providers across the U.S. to verify patient identity and insurance eligibility, and to calculate an accurate patient statement at Point of Service using managed care contracts, charge master data, and the patient’s insurance benefit information (if insured). By ensuring data quality on the front end of the revenue cycle, hospitals can reduce back-office rework as well as full-time employees required to manage bad debt and write-offs.
+
+EligibilityPlus
+Provides real-time eligibility verification and the most comprehensive benefit response available. Your organization needs to know more than if a patient is eligible under a particular insurance plan; it needs to know the specific benefits for the services that your organization provides. With integrated electronic data interchange (EDI) and payer web-portal benefits, EligibilityPlus gives your organization the specific benefits it needs to accurately assess and complete eligibility and benefit verification. Identifying patient eligibility and benefit plan details early in the revenue cycle allows for faster patient collections and more accurate claim submission, which improves revenue collection and cash flow while reducing administrative expenses
+
+Auth-DP (Authorization Denial/Prevention)
+Allows your patient-access staff to identify whether an authorization is required and the status of that authorization prior to service, ensuring that your organization provides service only with the approved authorization in place. Missing or incorrect authorization information causes hospitals to write off millions of dollars every year. For many hospitals, claim denials represent the greatest financial challenge across the revenue cycle. By reducing authorization denials, revenue cycle management teams can redirect staff members to focus on other areas of the revenue cycle.
+
+Auth-DP functionality resides in the following modules, which your organization can license:
+
+AuthInitiate web application and module, powered by our patented bot technology, initiates and helps complete a prior-authorization request for scheduled procedures (healthcare services).
+
+AuthStatus determines whether an authorization is required for a given payer/procedure. The module automates the process of retrieving the authorization number and status directly from the payer website. It then finds and lists authorization exceptions, allowing patient-access staff to focus on denial prevention.
+
+AuthNotification uses an EDI authorization message (also known as the 278N Services Review Notification) to provide Admission Notification to United Healthcare. By using this solution, providers inform United Healthcare of a patient’s admission in a timely manner thus avoiding financial penalties. Payers use this information to coordinate care with the hospital for that patient.
+
+AuthSubmit initiates authorization requests on behalf of a facility or physician for unplanned inpatient direct admissions. This helps provide timely notification to the payer along with ensuring that there is an authorization on file prior to providing services, which helps reduce denials due to lack of notification/authorization.
+
+MedicalNecessity and advance beneficiary notice (ABN) uses national and local Medicare policies (see links below) to help determine if services will be covered under Medicare’s criteria. Though this is only available for outpatient services, it can easily prevent Medicare denials and make the patient aware that they will not be covered for the procedure. By federal statute, Medicare can only pay for items and services that are "reasonable and necessary for the diagnosis or treatment of illness or injury or to improve the functioning of a malformed body member." Medicare has a number of policies, including National Coverage Determinations (NCDs) and Local Coverage Determinations (LCDs), formerly known as Local Medical Review Policies (LMRP), that describe coverage criteria.
+
+Revenue Cycle API business value
+The Revenue Cycle API provides automated data that you can incorporate into your reporting and metrics. You can have it feed directly into your own existing applications, reducing the need for your users to switch between multiple applications, which greatly increases their efficiency.
+
+For specific data fields and business values of each endpoint/sub-model, see the appropriate endpoint topic in this documentation.
+
+HIPAA compliance and proper handling of PHI
+As a Business Associate to our clients, we take Health Insurance Portability and Accountability Act (HIPAA) compliance very seriously. The patient’s Protected Health Information (PHI) used in our products must be treated in accordance with the HIPAA privacy and security regulations (HHS.gov website).
+
+Toward that end, you must use standard security measures to ensure that PHI cannot be accessed by anyone other than authorized users. These measures include
+
+Protecting login information to prevent unauthorized use.
+
+Logging out of the product portal when leaving a work station or when the portal will be idle.
+
+Using appropriately secured methods to communicate with Client Support when PHI is involved.
+
+When contacting Client Support:
+
+Never send PHI in an unsecured email.
+
+If you need to communicate with us about a particular transaction that requires a screen print, make sure to mask any PHI with an opaque marker.
+
+Waystar - Important Considerations
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20219 min read
+1 person viewed
+RESTful
+The Revenue Cycle API is built using REST principles against predicable URLs to streamline application development.
+
+All REST calls follow HTTP rules, and all resources are exposed URLs.
+
+All calls made to further processing on an account or retrieve a status on an account will be asynchronous.
+
+The Revenue Cycle API is currently in active development ,and all aspects are subject to change.
+
+Data mapping is really important
+Data mapping is one of the most critical parts of deploying the Revenue Cycle API into a customer's environment. That's why it's so important that you review the Data mapping topic in this documentation. This will help ensure success as you build to the API.
+
+It is critical to synchronize the data models between your development environment, the client’s environment, and the Recondo/Waystar platform to correctly map the data models (payers, procedures, patient types and service, locations of service, and so on) to ensure that the production API works as intended with our platform.
+
+While test messages and data will give you the appropriate details to build and test API functionality, making the API work in a customer’s environment will take an extra step to align our data models, and we’ll be happy to support you during the process.
+
+Why you need to care:
+
+Some providers call Outpatient Surgery “OP-Surgery,” while others call it “1.”
+
+Some providers use coded data, others use mnemonics, some are standards-based, some are not.
+
+Each provider environment is unique.
+
+There is variation in the data (HL7 ADT and SIU) that drives the patient encounter.
+
+Relationships to subscribers, patient types and services, payer names/IDs, and so forth, will be different from site to site, and are different from third- party to third-party.
+
+So, yes, data mapping is a big deal.
+
+The Revenue Cycle API is provider-centric
+Typically, most APIs give universal access to a dataset that was created to be as universal as possible. And once you code to the test API, you can move into a production environment and “go-live” without changing the data used to call the API. Healthcare environments, however, make it slightly more complex.
+
+Not every client has every product/application service in our platform.
+
+Data is not consistent from site to site.
+
+Providers have different contracts and rates that drive patient estimates.
+
+Third parties, providers, and Recondo/Waystar have different lists of payers with different payerIDs.
+
+How data is mapped is critical to the success of the API. So once you’ve developed a working test application, the next step is to deploy to the customer’s environment, where we will align our data models. For more data-mapping information, see the Data mapping topic in this documentation.
+
+Patient-encounter API model
+Our API model was designed around the concept of a patient encounter. That means we treat as much of a patient’s revenue cycle encounter as holistically as possible. When there are changes to a patient’s location of service, procedures, or coverage, it all affects the encounter. Rather than generate a large number of API endpoints that you have to keep track of and coordinate, we’ve limited the endpoints to drive some simplicity in designing to our specification.
+
+Why is the API asynchronous?
+Because our product platform uses our patented bots along with EDI and provider processes, such as authorization, not all responses in the revenue cycle occur in real time as we merge data across sources, different standards, and different temporal events. As an example, you may find that for a particular patient encounter, an eligibility response for a payer with strong EDI may come in before you receive an authorization status response, but you do not want to wait for the authorization to get the information you need.
+
+We also understand that patient encounters change—eligibility changes, procedures change, locations of service change—so we’ve designed the API to always proactively send you the most current account status across the entire revenue cycle. As the encounter changes, and as our platform delivers the content, we always update the entire Revenue Cycle API response with all the patient-encounter content that was provisioned. In this way, your application does not need to continually poll our API for a response.
+
+High-level processing
+Most endpoints provided in the Revenue Cycle API allow access to Recondo/Waystar processing in an asynchronous (not real-time) manner. This means that requests to the Revenue Cycle API must include a “reply to” address to which the fully processed API response will ultimately be sent. It is also because of the asynchronous nature of the Revenue Cycle API processing that the immediate response body to every request to the API will be a brief “Message Acknowledgement”, either an “Acknowledged” or a “Not Acknowledged” (ACK/NACK) which will indicate to the requestor if their request has successfully been submitted through the Revenue Cycle API for processing. This response will include any request errors that prevented the request from being processed in the case of the NACK.
+
+Diagram example (Load Account)
+ACK/NACK response format
+An “acknowledged” or “not acknowledged” message is a JSON response with the following schema:
+
+
+{
+  "messageId": "string"
+  "accountNumber": "string"
+  "facilityId": "string"
+  "acknowledged": boolean,
+  "errors": [
+    "string"
+  ]
+}
+The elements of this model are as follows:
+
+Element
+
+Data type
+
+Description
+
+messageId
+
+UUID (as String)
+
+A unique identifier for the request, to be used to correlate requests and responses.
+
+accountNumber
+
+String
+
+The unique number assigned by your organization’s Health Information System (HIS). This is the account number provided to the Revenue Cycle API in the request for which this ACK/NACK is being sent.
+
+facilityId
+
+String
+
+The location where a patient's healthcare service is performed, as defined by your organization. This is the facility identifier provided to the Revenue Cycle API in the request for which this ACK/NACK is being sent.
+
+acknowledged
+
+Boolean
+
+Indicator of whether or not the request was submitted for processing successfully. True for a successful request was successfully submitted, False otherwise.
+
+errors
+
+Array (of Strings)
+
+A listing of any data validation/request errors that occurred while attempting to submit the request for processing.
+
+The following is an example ACK/NACK response:
+
+
+{
+  "messageId": "339fca21-80d2-4181-9021-780d2993de86",
+  "accountNumber": "",
+  "facilityId": "1234567890",
+  "acknowledged": false,
+  "errors": [
+    "Account number is required and must not be blank"
+    ]
+}
+Response Requirements
+This section should give you an idea of the level of effort required to get both test responses and real responses from the Revenue Cycle API.
+
+Test Response
+
+What you need for test responses:
+
+A digital token must be acquired from us to give you access to the Revenue Cycle API. The token must be present on all requests to the Revenue Cycle API.
+
+A test application capable of making HTTP requests and displaying the basic responses.
+
+A test application capable of receiving the asynchronous messages.
+
+Real Response
+
+What you need for real responses:
+
+A digital token must be acquired from us to give you access  to the Revenue Cycle API. The token must be present on all requests to the Revenue Cycle API.
+
+An application capable of making HTTP requests and processing the basic responses.
+
+An application capable of processing the asynchronous messages.
+
+Initial mapping data. This depends on the products selected; see the Data mapping section for more information. The time investment here is entirely dependent on the amount of data. Three facilities with a few dozen physicians will be much faster than 40 facilities and 1000 physicians.
+
+Payer website credentials. We require payer website credentials for our automated solutions. These website credentials will power our patented bots, which automatically go out to payer websites and retrieve the necessary data.
+
+Initial environment setup. We will need time and dedicated coordination to setup both Staging and Production environments.
+
+Initial settings. Many of our products have additional tools and alerts that can be turned on/off. You will need to work with us to determine the settings that work best for you.
+
+Implementation time is strongly driven by the timeliness of your responses for data that is needed to configure your environment. If you are already using our products and would like to add the Revenue Cycle API, this additional integration will likely be a much shorter process.
+
+OAuth2 authentication
+All requests require a valid OAuth2 Bearer token to successfully interact with the Revenue Cycle API. Initial setup with our Infrastructure and IT team needs to take place to establish the process for obtaining and maintaining valid OAuth2 tokens. At its most basic, we will create a customerId and a token secret. Using this combination, you will be able to request OAuth2 tokens, which you will attach to any requests you make.
+
+The Revenue Cycle API supports:
+
+Client authentication through OAuth2.
+
+Encryption over HTTPS for calls to the Revenue Cycle API.
+
+Example JSON token call
+The following is an example of a JSON call to retrieve a token using Postman.
+
+
+{
+"info": {
+"_postman_id": "253fce1a-ce1d-454f-a8d7-b7f449cb0808",
+"name": "reco api",
+"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+}, "item": [
+{
+"name": "https://api.recondohealth.net/oauth2/token", "request": {
+"auth": {
+"type": "basic", "basic": [
+{
+"key": "password", "value": "xxxxx", "type": "string"
+}, { "key": "username", "value": "xxxxx", "type": "string"
+} ]
+},
+"method": "POST", "header": [
+{
+"key": "Content-Type",
+"name": "Content-Type",
+"value": "application/x-www-form-urlencoded", "type": "text"
+} ],
+"body": {
+"mode": "urlencoded", "urlencoded": [
+{
+"key": "grant_type",
+"value": "client_credentials", "type": "text"
+} ]
+},
+"url": {
+"raw": "https://api.recondohealth.net/oauth2/token", "protocol": "https",
+"host": [
+"api", "recondohealth", "net"
+], "path": [
+"oauth2",
+"token" ]
+} },
+"response": [] }
+] }
+Example shell script token cURL call
+The following is an example shell script cURL call to retrieve a token.
+
+
+CLIENT_ID=your_id
+CLIENT_SECRET=your_secret
+BASIC_HEADER=`echo -n "$CLIENT_ID:$CLIENT_SECRET" | base64` BASIC_HEADER=$(echo $BASIC_HEADER | sed 's/\r//g') BASIC_HEADER=$(echo $BASIC_HEADER | sed 's/ *//g')
+echo $BASIC_HEADER
+curl -v -i -H "Authorization: Basic $BASIC_HEADER" -d "grant_type=client_credentials" https://api.recondohealth.net/oauth2/token
+Calling the Revenue Cycle API
+Request URLs are relative to the following endpoint: /revenueCycleApiService/rcas/v1/
+
+So an example of a request URL might be something like: rcas.recondohealth.net:8080/revenueCycleApiService/rcas/v1/loadAccount
+
+HTTP methods
+The Revenue Cycle API exposes a variety of different endpoints that can be accessed using different HTTP methods. The information in this documentation for a particular resource will indicate the supported HTTP methods and their expected behaviors.
+
+Method
+
+Description
+
+GET
+
+Retrieves a resource.
+
+POST
+
+Creates a new resource or performs an action.
+
+PUT
+
+Updates an existing resource.
+
+DELETE
+
+Deletes an existing resource.
+
+API Call Response codes
+The Revenue Cycle API returns HTTP status codes to indicate the success or failure of an API call. In general, codes in the 2xx range indicate a success, the 4xx range indicates an error in the request, and errors in the 5xx range indicate errors related to server-side processing. For example:
+
+Status Code
+
+Description
+
+200
+
+OK
+
+400
+
+Invalid data in request
+
+500
+
+Internal server error
+
+Account error handling
+Any errors that occur before the message is sent to our Automated Transaction Processing (ATP) will result in a response sent to your organization with an error message indicating what occurred with the transaction. The Revenue Cycle API has a specific HTTP endpoint for error messages. The “reply to” address from an original request will be used to send error responses back to your organization.
+
+Response
+Content Model
+
+Description
+
+Account Error Response
+
+A JSON representation of the account’s error response.
+
+The “Account Error Response” is a JSON response following the model described as:
+
+
+{
+  "messageId": "string",
+  "errorMessage": "string",
+  “supportMessage”: “string”
+}
+The elements of this model are:
+
+Element
+
+Data type
+
+Description
+
+messageId
+
+UUID (as String)
+
+A unique identifier for the request used to correlate requests and responses.
+
+errorMessage
+
+String
+
+An error that occurred while attempting to submit the request for processing.
+
+supportMessage
+
+String
+
+The support message should read “For further Recondo support, please call 888-732-6672”.
+
+Example Response
+
+{
+  "messageId": "3632ae0f-1179-4ea2-8be2-d8bbb0c09db4",
+  "errorMessage": "No account found for request",
+  "supportMessage": "For further Recondo support, please call 888-732-6672"
+}
+Required data by product
+Each product has its own list of data required to fully process an encounter. An account does not need to process in every product but be aware of what data is required for the products you have licensed, enabled, and want to process through with the Revenue Cycle API.
+
+Note: For insurance information, if the patient is self-pay, that is the only"insurance"data we need. If they are insured, we also need the Policy Number and the Patient Relationship to Subscriber (policy holder). If the relationship is not SELF, we will also require the subscriber’s first and last name.
+
+Base (for all products) required data is Facility, Date of Service, Patient Last Name, Patient First Name, Patient Gender, Patient Date of Birth, and at least one payer.
+
+SurePayHealth required data is Patient Type/Service and Procedure(s).
+
+EligibilityPlus does not require any additional data.
+
+AuthStatus required data is PatientType/Service andProcedure(s).
+
+AuthSubmit required data is AdmissionType, PatientType/Service, Admitting or Attending Physician, Procedure, and Length of Stay.
+
+AuthNotification required data is Admission Type, Patient Type/Service, Reason for Visit, and Admitting or Attending Physician.
+
+MedicalNecessity required data is Patient Type, Procedure(s),and Diagnosis Code(s).
+
+See also
+
+Specific endpoint topics for all of the available data for that resource.
+Products available through the Revenue Cycle API for a description of each of our products.
+
+Other Points - WIP
+A user interface/experience must be created in Phelix for consumption of Waystar content.  For example, consumption and display of eligibility responses, alerts, auth numbers, estimates (and breakdown), and other visual Add on systems may need to be developed for successful API integration.
+
+There is always an ability to deep link into the Waystar application for any non-ATP reason or event.
+
+Getting Tokens and API access
+
+Sample curl commands to get tokens for API call access to devpartner sandbox .
+
+When we stand up the API/Infinitt environment, we can cut production API keys
+
+Designing for Asynchronous & Encounter Behavior
+
+Waystar’s platform runs asynchronously for certain operations (think of a bot obtaining a status from a payer web site). We post material changes to your endpoint. This helps reduce polling overhead...and you can always get an account status update from the endpoint if you have not maintained state.
+
+Waystar’s platform is encounter based – we will attempt to process transactions through for as many products as we can based on the information you give us in the load account call.
+
+Developers coding to the API should consider try/retry logic for proper account handling (ex. Eligibility vs. Eligibility+Auth+Estimation)
+
+Patient Type and Service Driven data
+
+Our rules and processes are also heavily based on patient types and services – this is important in discovering accurate benefits for estimation calculations, auth portal routing, and many other tasks. In this case, we will mostly deal with Outpatient Radiology, making this concept much easier.
+
+Common Mistakes
+
+Not implementing NACK logging and connecting to retry logic (review Eligibility + SPH example).
+
+Unmapped data to Waystar value set (review relationship to subscriber) – upstream systems need to adopt the Waystar values in the API guide.
+
+Waystar - Data Mapping
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20215 min read
+3 people viewed
+What is the deal with data mapping?
+It is critical to synchronize the data models between your development environment, the client’s environment, and the Recondo/Waystar platform to correctly map the data models (payers, procedures, patient types and service, locations of service, and so on) to ensure that the production API works as intended with our platform.
+
+While test messages and data will give you the appropriate details to build and test API functionality, making the API work in a customer’s environment will take an extra step to align our data models, and we’ll be happy to support you during the process.
+
+Why you need to care:
+
+Some providers call Outpatient Surgery “OP-Surgery,” while others call it “1.”
+
+Some providers use coded data, others use mnemonics, some are standards-based, some are not.
+
+Each provider environment is unique.
+
+There is variation in the data (HL7 ADT and SIU) that drives the patient encounter.
+
+Relationships to subscribers, patient types and services, payer names/IDs, and so forth, will be different from site to site, and are different from third- party to third-party.
+
+So, yes, data mapping is a big deal.
+
+What data needs mapping?
+As a step in request processing, the Revenue Cycle API will translate a number of input request fields from values supplied in the request into normalized values used during internal processing. The following fields will undergo this data mapping operation:
+
+Facility names
+
+Gender values (patient gender, subscriber gender, etc.)
+
+Relationship codes (the patient’s relationship to the subscriber).
+
+Patient Type and Service
+
+Payer names (insurance company)
+
+Physician names (and IDs)
+
+Procedure codes
+
+Diagnosis codes( we do not need HIS data for this, the mapping is provided to make requests easier)
+
+It will be a necessary operational step to establish correct and complete data mappings between your organization’s Hospital Information System (HIS) values and our internal values for these fields, for any user of the Revenue Cycle API.
+
+It should also be noted that a failure to accurately map these data elements will result in failed Revenue Cycle API requests, producing NACK responses from the API with an appropriate error code returned.
+
+Facility names
+Facility names are unique to each Recondo/Waystar environment and are typically a numeric string of values like, “12345678910.” As we take a combined solution to a client, we will provide the provisioned IDs to you for a production go-live.
+
+Gender values
+The Recondo/Waystar-mapped gender values are as follows:
+
+Recondo Value
+
+Description (if needed)
+
+Female
+
+ 
+
+Male
+
+ 
+
+Unknown
+
+Example mapping that you and your organization may need to perform during your customer’s implementation:
+
+HIS Value
+
+Recondo Value (to map to)
+
+F
+
+Female
+
+f
+
+Female
+
+FEMALE
+
+Female
+
+female
+
+Female
+
+M
+
+Male
+
+m
+
+Male
+
+MALE
+
+Male
+
+Relationship codes
+The following are supported values for relationship-to-subscriber information. As an example, if the host HIS solution has a value of “wife” or “husband,” it would be mapped to the Recondo/Waystar value of “1” (aka Spouse).
+
+Recondo Value (to map to)
+
+Description (if needed)
+
+1
+
+Spouse
+
+18
+
+Self
+
+19
+
+Child
+
+34
+
+Other Adult
+
+Patient Type and Service
+For each patient encounter that you load to the API, a required Patient Type and Service is needed to appropriately map and route requests in our platform. Not all patient types and services are coded the same within a provider organization’s HIS system. Please note that you will want to map those values to one of our standard patient type class names and medical service class names below:
+
+Patient Type Class Name
+
+Medical Service Class Name
+
+AuthNotification
+
+AuthStatus
+
+AuthSumbit
+
+EligibilityPlus
+
+MedNec
+
+SurePayHealth
+
+Clinic
+
+Sick Visit
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Well Visit
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+Emergency
+
+Accident
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+✔
+
+ 
+
+Medical
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+✔
+
+Emergency Room
+
+(blank)
+
+ 
+
+ 
+
+ 
+
+✔
+
+ 
+
+✔
+
+Inpatient
+
+Boarder Baby
+
+✔
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ER/Direct Admit
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Hospice
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Intensive Care
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Long Term Care
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Maternity
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Medical
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+✔
+
+ 
+
+MedicalCare
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+MedicalClass
+
+ 
+
+ 
+
+✔
+
+ 
+
+ 
+
+ 
+
+ 
+
+Neonatal Intensive Care
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Newborn
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+NICU
+
+✔
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Rehabilitation
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Skilled Nursing Care
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Surgery
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Surgical
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Transplants
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Well Baby Care (Healthy Baby)
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+(blank)
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+Newborn
+
+Boarder Baby
+
+✔
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Neonatal Intensive Care
+
+✔
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+Newborn Care
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+NICU
+
+✔
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Well Baby Care (Healthy Baby)
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+✔
+
+ 
+
+(blank)
+
+✔
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+NullClass
+
+(blank)
+
+ 
+
+ 
+
+ 
+
+✔
+
+ 
+
+ 
+
+Observation
+
+Default
+
+ 
+
+✔
+
+ 
+
+✔
+
+ 
+
+✔
+
+ 
+
+Observation
+
+ 
+
+✔
+
+ 
+
+✔
+
+ 
+
+✔
+
+OP Surgery
+
+AUDIOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CARDIOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+GYNECOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+LITHOTRIPSY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+NEUROLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+ORTHOPEDICS
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PEDIATRIC ONCOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PEDIATRICS
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PULMONARY MEDICINE
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+Outpatient
+
+ADULT ONCOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+AUDIOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CARDIAC CATH
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CARDIAC REHAB
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CARDIAC SCORING
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CARDIOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CARDIOLOGY OBSERVATION
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CARDIOVASCULAR
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CHEMOTHERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CORONARY CARE SERVICE
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+DIABETES EDUCATION
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+DIABETES EDUCATION OB
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+DIALYSIS
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+ECHOCARDIOGRAM
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+ELECTROCARDIOGRAM
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+ELECTROENCEPHALOGRAM
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+ELECTROMYOGRAPHY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+ENDOSCOPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+GAMMA
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+GYNECOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+HYPERBARIC OXYGEN
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+INFUSION
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Lab
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+✔
+
+ 
+
+LABORATORY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+LITHOTRIPSY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+NEUROLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+NUCLEAR MEDICINE
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+NUTRITION
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Observation
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+OCCUPATION MEDICINE
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+OCCUPATIONAL THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Office Visit
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+ORTHOPEDICS
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Other
+
+ 
+
+✔
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+OUTPATIENT THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PAIN MANAGEMENT
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PEDIATRIC ONCOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PEDIATRIC TELEMETRY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PEDIATRICS
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PET SCAN
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PHYSICAL THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PULMONARY MEDICINE
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+RADIATION ONCOLOGY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Radiology
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+REFERENCE LAB
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+RESPIRATORY THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+SLEEP LAB
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Sleep Study
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+SPEECH THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Surgery
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+TELEMETRY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+TRAUMA
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+VASCULAR
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+WOUND CARE
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+(blank)
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+Recurring
+
+Chemo Therapy
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+CHEMOTHERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+DIABETES EDUCATION
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Hyperbaric Oxygen Treatment
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+IV Infusion Therapy
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Lab
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+OCCUPATIONAL THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Occupational Therapy Evaluation
+
+ 
+
+ 
+
+ 
+
+✔
+
+ 
+
+✔
+
+ 
+
+OP Cardiac Rehab
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Outpatient cardiac rehab
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Outpatient Dialysis
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PAIN MANAGEMENT
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+PHYSICAL THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Physical Therapy Evaluation
+
+ 
+
+ 
+
+ 
+
+✔
+
+ 
+
+✔
+
+ 
+
+Pulmonary Rehab
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Radiation Therapy
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Services
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Sleep Therapy
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+SPEECH THERAPY
+
+ 
+
+✔
+
+ 
+
+✔
+
+✔
+
+✔
+
+ 
+
+Speech Therapy Evaluation
+
+ 
+
+ 
+
+ 
+
+✔
+
+ 
+
+✔
+
+Payer names
+Payer names also vary significantly between partners, providers, and Recondo/Waystar. We’ve found that most of us have a payer list with some unique identifiers. For example, for some the payer name is Blue Cross Blue Shield of Texas, while others use BCBS Texas. As you develop your solution, please keep in mind that we will need to map and align payers with our mutual customer. You’ll find an example list of payer names and IDs in our test data set. Here is a sample of the type of information you will see.
+
+Sample Payer Name
+
+Recondo Payer API Value
+
+Aetna
+
+REC0100
+
+Medicaid of Kentucky
+
+REC1870
+
+United Healthcare
+
+REC1610
+
+Standard Life and Accident Ins Co
+
+REC5130
+
+Self-Pay
+
+SELFPAY
+
+Physician names (and IDs)
+Our platform can take in different physician information for related authorization and eligibility events. As your solution moves from the test endpoint to a mutual customer’s environment, both your organization and Recondo/Waystar will need to make sure that the available physician mapping is provided to your organization for population. The following fields are available to populate in the message response:
+
+Field Name
+
+Recondo Value (illustrative)
+
+Physician First Name
+
+Robert
+
+Physician Last Name
+
+Smith
+
+Physician ID
+
+12345
+
+Procedure codes
+When obtaining pricing estimates and certain authorizations, procedure codes become important. For pricing, our platform relies upon two methods to generate price estimates. In most cases, standard ICD and CPT procedure codes is the easiest method used to generate prices estimates. Our platform does not re-license, or publish these codes, and most organizations need to purchase a license from an official source. We recommend using the following resources to explore standard code sets:
+
+AMA Finding Coding Resources
+
+CMS ICD-10 (look for PCS and GEMs)
+
+CMS HCPCS Quarterly Update
+
+The second method of obtaining estimates that our platform supports is the usage of a scheduled procedure Mnemonic. Whether a healthcare provider uses a codified element like “349284902,” or a text string like “Colonoscopy,” that Mnemonic usually maps to a common procedure. For example, a Colonoscopy, while general in description could map to a variety of procedure codes, like a 45378 or 45380. Each healthcare provider site is unique in this mapping, and is unique in their use of Mnemonics. We help each provider map the Mnemonic to a procedure, so during deployment of your solution, and our API client, we will need to make the mappings known to you. Or, you can map the Mnemonic to the client’s preferred procedure code set(s), and send that to our platform.
+
+For authorizations, it is important to always know the procedure for which authorization status is to be requested, and it is a required element for authorization operations.
+
+Diagnosis codes
+When determining authorization, diagnosis codes are also often required to process operations within our authorization platform. Our platform does not re- license, or publish these codes, and most organizations need to purchase a license from an official source. We recommend using the following resources to explore standard code sets:
+
+AMA Finding Coding Resources
+
+CMS ICD-10 (look for PCS and GEMs)
+
+CMS HCPCS Quarterly Update
+
+Waystar - Revenue Cycle API Endpoints
+
+
+Created by Mayank (Unlicensed)
+Last updated: Jul 07, 20211 min read
+1 person viewed
+Account Reprocessing
+
+Authorization Required
+
+Cancel Account
+
+EligibilityPlus Processing
+
+Load Account
+
+Regenerate EligibilityPlus Alerts
+
+Retrieve 271 Response
+
+Retrieve Account Status
+
+Retrieve Image
+
+Retrieve PDF
+
+Waystar - Revenue Cycle API - Account Reprocessing
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20211 min read
+2 people viewed
+The Account Reprocessing endpoint provide account reprocess/recheck capabilities.
+
+Recheck Eligibility
+Endpoint
+
+Supported HTTP Methods
+
+/account/recheck/eligibility
+
+POST
+
+Use the Account Reprocessing Controller - Recheck Eligibility resource to reprocess/recheck one account at a time in EligibilityPlus. This endpoint is for applications to use when it is desired to reprocess a patient’s eligibility. Scenarios like month-over-month thresholds, date-of-service eclipses, or post- service eligibility assessment are some of the common use cases in which you can use this endpoint. This endpoint requires that an account was already created, and that the particular account will be used to reprocess eligibility.
+
+Request body
+
+Content Model
+
+Description
+
+Required?
+
+Default
+
+Request
+
+A JSON representation of the EligibilityPlus reprocess/recheck request (defined below)
+
+Y
+
+ 
+
+The “Request” is a JSON request following the model described as:
+
+
+{
+  "accountNumber": "string",
+  "customerId": "string",
+  "dateOfService": "2020-05-27T20:12:03.716Z", "facilityId": "string",
+  "messageId": "string",
+  "replyToAddress": "string"
+}
+Error response
+
+
+{
+  "accountNumber": null,
+  "sourceIpAddress": "10.202.50.62",
+  "sourceAuthentication": null,
+  "sourceHeaders": {
+    "Accept": "text/plain, application/json, application/*+json, */*",
+    "User-Agent": "Apache-HttpClient/4.5.7 (Java/1.8.0_191)",
+    "Connection": "keep-alive",
+    "Host": "daparevapi004.recondo.vci:8085",
+    "Accept-Encoding": "gzip,deflate",
+    "Content-Length": "265",
+    "Content-Type": "application/json"
+    },
+  "savedFilename": "2020-06-08_14.34.16.591.txt",
+  "responseContent": {
+    "messageId": "c360ed4e-58bb-4f87-869c-eac1a3b35b21",
+    "errorMessage": "No episode found with account number of test.sb.13968, facility id of string, and dos of 2020-06-08.",
+    "supportMessage": "For further Recondo support, please call 888-732-6672",
+    "customerId": "recona"
+    }
+}
+Waystar - Revenue Cycle API - Cancel Account
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20212 min read
+1 person viewed
+Endpoint
+
+Supported HTTP Methods
+
+/cancelAccount
+
+POST
+
+Caution: After an account is cancelled, it cannot be un-cancelled.
+
+The Cancel Account resource provides the ability to cancel an existing account such that no further processing will occur on the account within any of our products supported in the environment. Response to a Cancel Account request will be an ACK/NACK indicating if the account cancellation request was successfully received and sent to our services to halt further processing.
+
+See the Element descriptions topic for the elements that are required.
+
+Note: Receiving an ACK response for a Cancel Account request does not mean that the account was successfully cancelled. It means that the request to cancel the account was valid and was submitted for processing. If, for example, no account is found in our system with the account number supplied in the request, the Cancel Account request will be ineffectual.
+
+Request query parameters
+
+Parameter
+
+Description
+
+Required?
+
+Default
+
+Pretty
+
+Return a user readable response
+
+N
+
+False
+
+Request body
+
+Content Model
+
+Description
+
+Required?
+
+Default
+
+Account Action
+
+A JSON representation of the cancellation request action (defined below)
+
+Y
+
+ 
+
+The “Account Action” is a JSON request following the model described as:
+
+
+{
+  "accountNumber": "string",
+  "customerId": "string",
+  "facilityId": "string",
+  "his": "string",
+  "messageId": "string",
+  "replyToAddress": "string"
+}
+Element descriptions
+
+The following are element descriptions and indicate if an element is required.
+
+Element
+
+Data type
+
+Description
+
+Required?
+
+accountNumber
+
+String
+
+The unique number assigned by your organization’s Health Information System (HIS).
+
+Y
+
+customerId
+
+String
+
+Customer identifier
+
+Y
+
+facilityId
+
+String
+
+The location where a patient's healthcare service is performed, as defined by your organization.
+
+Y
+
+his
+
+String
+
+Hospital Information System
+
+N
+
+messageId
+
+UUID (as String)
+
+Unique correlation ID (must be a UUID) for the transaction; if empty, a new value will be set
+
+N
+
+replyToAddress
+
+String
+
+Reply to address for the transaction
+
+Y
+
+Example request
+
+
+{
+  "accountNumber": "test.accountNumber",
+  "customerId": "17",
+  "facilityId": "1234567890",
+  "his": "",
+  "messageId": "",
+  "replyToAddress": "https://replyto.address.com/replyhere"
+}
+API Call Response codes
+
+Status Code
+
+Description
+
+200
+
+OK
+
+400
+
+Invalid data in request
+
+500
+
+Internal server error
+
+Asynchronous Response
+
+No further asynchronous responses will be sent for this account because the Cancel Account request prevents any further processing on that account.
+
+Waystar - Revenue Cycle API - Regenerate EligibilityPlus Alerts
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20211 min read
+1 person viewed
+Endpoint
+
+Supported HTTP Methods
+
+/regenerateEligibilityPlusAlerts
+
+POST
+
+The Regenerate EligibilityPlus Alerts resource provides the ability to perform an ad-hoc request to regenerate the EligibilityPlus alerts for an account that has been loaded and processed through the EligibilityPlus product. Response to a Regenerate EligibilityPlus Alerts request will be an ACK/NACK indicating if the request to regenerate the alerts was successfully received and sent to our services for processing.
+
+Request query parameters
+
+Parameter
+
+Description
+
+Required?
+
+Default
+
+Pretty
+
+Return a user readable response
+
+N
+
+False
+
+Request body
+
+Content Model
+
+Description
+
+Required?
+
+Default
+
+Account Action
+
+A JSON representation of the regenerate EligibilityPlus alerts request action (defined previously)
+
+Y
+
+ 
+
+Example request
+
+See example provided for the “Cancel Account” resource, as the example there pertains to this resource as well.
+
+API Call Response codes
+
+Status Code
+
+Description
+
+200
+
+OK
+
+400
+
+Invalid data in request
+
+500
+
+Internal server error
+
+Asynchronous response
+
+Content Model
+
+Description
+
+Overall Account Status
+
+A JSON representation of the account’s current processing details representing the level of processing attained on the account at the time of  retrieval (model defined previously)
+
+Example response
+
+See example provided for the “Load Account” resource, as the example there pertains to this resource as well.
+
+Waystar - Revenue Cycle API - Retrieve 271 Response
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20211 min read
+1 person viewed
+Endpoint
+
+Supported HTTP Methods
+
+/retrieve271response
+
+GET
+
+The Retrieve 271 Response resource provides the ability to perform an ad-hoc request to retrieve 271 benefits for an account that was loaded and processed through the EligibilityPlus/SurePayHealth products.
+
+Request query parameters
+
+Parameter
+
+Description
+
+Required?
+
+Default
+
+customerId
+
+Customer identifier
+
+Y
+
+ 
+
+responseId
+
+Identifier of the 271 response
+
+Y
+
+ 
+
+payerName
+
+Name of the payer whose response you are retrieving
+
+N
+
+ 
+
+Example request
+
+
+http://localhost:8080/revenueCycleApiService/rcas/v1/retrieve271Response?customerId=recona&responseId=f8 e00a4d-d532-470f-bc17-68a379918354
+API Call Response codes
+
+Status Code
+
+Description
+
+200
+
+OK
+
+400
+
+Invalid data in request
+
+500
+
+Internal server error
+
+Response
+
+Content Model
+
+Description
+
+String
+
+271 EDI response
+
+Waystar - Revenue Cycle API - Retrieve Account Status
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20211 min read
+1 person viewed
+Endpoint
+
+Supported HTTP Methods
+
+/retrieveAccountStatus
+
+POST
+
+The Retrieve Account Status resource provides the ability to perform an ad-hoc request for the current processing status of an account within all our products supported in the environment. Response to a Retrieve Account Status request will be an ACK/NACK indicating if the account status request was successfully received and sent to our services to retrieve the current status.
+
+Request query parameters
+
+Parameter
+
+Description
+
+Required?
+
+Default
+
+Pretty
+
+Return a user readable response
+
+N
+
+False
+
+Request body
+
+Content Model
+
+Description
+
+Required?
+
+Default
+
+Account Action
+
+A JSON representation of the account status request action (defined previously)
+
+Y
+
+ 
+
+Example request
+
+See example provided for the “Cancel Account” resource, as the example there pertains to this resource as well.
+
+API Call Response codes
+
+Status Code
+
+Description
+
+200
+
+OK
+
+400
+
+Invalid data in request
+
+500
+
+Internal server error
+
+Asynchronous response
+
+Content Model
+
+Description
+
+Overall Account Status
+
+A JSON representation of the account’s current processing details representing the level of processing attained on the account at the time of retrieval (model defined previously)
+
+Example response
+
+See example provided for the “Load Account” resource, as the example there pertains to this resource as well.
+
+Waystar - Revenue Cycle API - Retrieve Image
+
+
+Created by Mayank (Unlicensed)
+Jul 07, 20211 min read
+1 person viewed
+Endpoint
+
+Supported HTTP Methods
+
+/retrieveImage
+
+GET
+
+For Auth-DP modules. The Retrieve Image resource provides the ability to perform an ad-hoc request to retrieve an authorization substantiation image for an account loaded and processed through the Auth-DP modules.
+
+Request query parameters
+
+Parameter
+
+Description
+
+Required?
+
+Default
+
+Pretty
+
+Return a user-readable response.
+
+N
+
+False
+
+imageLocator
+
+Image locator (name).
+
+Y
+
+ 
+
+facilityId
+
+The location where a patient's healthcare service is performed, as defined by your organization.
+
+Y
+
+ 
+
+customerId
+
+Customer identifier.
+
+Y
+
+ 
+
+Example request
+
+
+http://localhost:8080/revenueCycleApiService/rcas/v1/retrieveImage?imageLocator=1111111111_image_2016_ 45_2_792f3dd4-d4d5-4a91-81e1-d6441f317b38.png&facilityId=1111111111&customerId=0000000000&pretty=true
+API Call Response codes
+
+Status Code
+
+Description
+
+200
+
+OK
+
+204
+
+No image was found
+
+400
+
+Invalid data in request
+
+500
+
+Internal server error
+
+Response
+
+Content Model
+
+Description
+
+String
+
+A Base64-encoded string representation of the image.
+
+ 
+
