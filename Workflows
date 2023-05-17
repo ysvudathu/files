@@ -1,0 +1,636 @@
+W - Dashboard - Day List
+
+
+Created by Mayank (Unlicensed)
+Last updated: Mar 15, 20211 min read
+9 people viewed
+Navigation
+Current - Home > Workflow Menu > Dashboard
+
+
+New - Home > Workflow Menu > Dashboard > Day List
+
+Definitions
+User = A user of the Phelix Web App
+
+Current Requirements (just focus on this)
+Existing design of Day List Home Screen- Phelix Web App  needs to be revamped
+
+User is able to choose a clinic location from a global dropdown in the Day List Home Screen
+
+User then sees a table with the following columns
+
+Date and day of appointment
+
+Time of appointment
+
+Appointment doctor or room (create two variations of Day List Home Screen)
+
+if it’s doctor
+
+show fictitious doctor names
+
+if it’s room
+
+names can be like MRI1, MRI1, CTS1, CTS2 etc.
+
+Name of the patient
+
+Appointment status
+
+Confirmed
+
+Awaiting Confirmation
+
+Same data as below (but presented in a better way, the buttons are clickable)
+
+
+Future Requirements (ignore for now)
+Different views for admin and (regular) user
+
+admin
+
+can choose between locations
+
+user
+
+only sees day list for one location
+
+W - Check-in - VWR - Technical Analysis
+
+
+
+
+Created by Mayank (Unlicensed)
+Last updated: Mar 24, 2021 by Avinash Chavan2 min read
+8 people viewed
+Navigation
+Current - Home > Workflow Menu > Virtual Waiting Room
+
+ 
+
+
+Current virtual waiting room table content
+
+ Name : Patient name.
+
+Waiting time : Time in minutes patient waited to interact with the provider.
+
+Reason : VWR status and time of booking.
+
+Provider : Provider name patient want to interact.
+
+Actions :  Up : Will shift the patient to one step up in the queue .
+
+Down :  Will shift the patient to one step down in the queue.
+
+In Room : Remove the patient from the queue and is interacting with the assigned provider ( Status changed to 'In Room' ) and add same in the db table.
+
+Current Execution flow (If any of the buttons are clicked )
+
+Request is sent for changing the place occupied by the patient in the virtual waiting queue.
+
+As per the request the response is updated with the latest queue order
+
+Current DB table details
+
+View created from speciality_covid19_screening and speciality_covid19_screening_queue.
+
+View Name: view_ssp_virtual_waiting_room
+
+View attributes: id (PK), patient_name, create_datetime, reason, provider, md5_id, visit_time, queue_number
+
+VWR Architecture Flow
+
+Architecture flow for Virtual Waiting Room
+ 
+
+Expected Working ( If any of the button are clicked )
+
+Data enters into appointment ops service and verify if it is valid and sent to the appointment service.
+
+Appointment service takes the data and make a check to partner service if the VWR is enable and emr status code is available  for the following user and return the data back to the appointment service.
+
+Further the control is transferred  to the job scheduler service, which will create custom message with details and a notification text to send to the checkpoint service.
+
+Then the checkpoint service will be responsible to call the notification service and sms service  with the text received by the checkpoint service , which will notify the patient regarding there status in the Virtual waiting queue.
+
+ 
+
+User side updates by the above events
+
+User will receive text message and notification for mobile app if its place or status in the queue get updates in the real-time.
+
+User can then start with the process of interaction with the provider after notified by sms and notification.
+
+W - Inbox - Email
+
+
+Created by Mayank (Unlicensed)
+Last updated: Mar 29, 20213 min read
+5 people viewed
+Navigation
+ 
+
+Current: Home > Manage > Email Inbox
+
+Future: Home > Workflow > Inbox > Email
+
+Frontend
+ 
+
+Email Home View
+
+The new design looks good, but with one change to the tag placement as described below
+
+User will be able to see the following data
+
+Email Sender Name
+
+Show the following tags, with the Sender Name (and not the Subject, as in the new design)
+
+Patient
+
+Physician
+
+Pharmacy
+
+Email Subject
+
+Email Preview (same as in the new design)
+
+Time of Email Receipt
+
+Email Detail View
+
+The new design looks good, now add the below enhancements
+
+User is able to add the Physician or Pharmacy
+
+Most emails would not be tagged automatically from the backend, so they will not have Patient, Physician and Pharmacy tags; so for such emails, in the Email Detail View, give user the option to
+
+Tag Provider, which can be Physician or Pharmacy (not both)
+
+Once user has selected Physician or Pharmacy, they will be able to search for either using the flow https://share.getcloudapp.com/xQubeyBR (the search will not fill a form in this case but just show all the details for that physician or pharmacy so the user can verify those details) and then Save them for that email
+
+Once this is done, the Physician or Pharmacy tag will be added to that email
+
+User is able to save the email to Patient Chart for an existing patient, using this form https://share.getcloudapp.com/mXupokpR
+
+User is able to create a new patient (which is not a new referral) using the same form as above https://share.getcloudapp.com/mXupokpR (remove Save to Referral option)
+
+User is able to trigger a New Referral workflow for new or existing patients (as currently implemented for Fax Inbox), similar to what you’ve implemented here https://www.figma.com/file/RxKtfKm83tT9wOuWVVjYSD/Phelix-Web-App?node-id=4516%3A15022 (all 4 steps)
+
+Backend (ignore for now)
+ 
+
+Email Sources
+
+Patient Emails
+
+Provider Emails
+
+Referring Provider (from)
+
+Referrer Provider (to)
+
+Pharmacy Emails
+
+Attorney Emails
+
+Scan Incoming Email
+
+Sender Email
+
+Scan Sender Email
+
+EMR Lookup
+
+Patient Found
+
+Primary Care
+
+*Export Email to PDF and Upload to Patient Chart
+
+*Assign (internal) Physician to the Patient Chart (new data for PC)
+
+Specialty Care
+
+*Export Email to PDF and Upload to Patient Chart
+
+*Assign (internal) Physician to the Patient Chart (new data for PC)
+
+*Create New Referral for Existing Patient
+
+**((New Referral Workflow/Viewer))
+
+Patient Not Found
+
+Primary Care
+
+*Create New Patient Chart
+
+*Send Checkpoint w/ Registration Form
+
+*Export Email to PDF and Upload to Patient Chart
+
+*Assign (internal) Physician to the Patient Chart (new data for PC)
+
+Specialty Care
+
+*Create New Patient Chart/Create New Referral
+
+**((New Referral Workflow/Viewer))
+
+*Export Email to PDF and Upload to Patient Chart
+
+*Assign (internal) Physician to the Patient Chart (new data for PC)
+
+Global Provider Lookup
+
+In our Global directory
+
+Not in our Global directory
+
+Email not found, update on directory
+
+Global Pharmacy Lookup
+
+Global Attorney Lookup
+
+Email Subject
+
+Email Body Content
+
+Email Attachments (PDFs)
+
+Base use case
+
+provider communication
+
+content of the email
+
+admin note
+
+attachments to the email
+
+Document AI will tell us that
+
+Email comes in from a doctor
+
+New referral or missing information for referral coming in via email
+
+New referral
+
+Referring doctor may or may not exist
+
+exists
+
+does not exist
+
+use the Global directory to update doctor record
+
+Display all incoming emails to the clinic email address
+
+Show an identifier if the email is from a patient who already exists in the EMR
+
+Fax order + Electronic order + phone/patient order
+
+Indexing
+
+Unique identifiers for each order
+
+external order #
+
+Can’t have same order for same
+
+patient
+
+visit (not important)
+
+order (communicate with patient)
+
+study (1:1 in RIS)/Accession #/CPT
+
+e.g. Mammo report / US report
+
+scheduled/ordered
+
+Billing descriptions/codes
+
+referring provider
+
+order date
+
+Only electronic will have order time 
+
+date that the order was created
+
+date that order was received
+
+Description // CPT
+
+EMR Study ID / Accession ID (for dropping report in EPIC)
+
+HL7 orders 
+
+Ability to un cancel orders
+
+W - PC - Case Management
+
+
+Created by Mayank (Unlicensed)
+Last updated: Mar 15, 20212 min read
+13 people viewed
+Navigation
+Current - Home > Workflow Menu > Triage (click on any row) > Patient Chart
+
+Definitions
+User = A user of the Phelix Web App
+
+Case = A record of any issue which is logged for a particular patient (e.g. tickets in ZenDesk)
+
+Current Requirements (just focus on this)
+Create a new section in the Patient Chart called Patient Cases
+
+User clicks on a button in Patient Cases to create a case, using “case create view”
+
+User is shown a form with the following fields
+
+message/text (which is the case details)
+
+case category (dropdown)
+
+customer service 
+
+radiology
+
+billing
+
+other
+
+case subject (dropdown)
+
+patient complaining
+
+physician complaining
+
+attorney complaining
+
+case requestor (dropdown)
+
+patient
+
+physician
+
+attorney
+
+user (show name of user)
+
+Once the case is created, user can see a list of all cases in “case table view”, with the following columns
+
+created_at (timestamp at which the case was created)
+
+category (as above)
+
+subject (as above)
+
+requestor (as above)
+
+assignee (assigned automatically)
+
+status (clickable dropdown)
+
+open
+
+on hold
+
+closed/resolved
+
+duration of open (number of days the case is open for)
+
+When the user clicks on a case, they are taken to a “case detail view”, which can pop-out from the sidebar (similar to case create view), where user can see
+
+Message history
+
+show list of all messages related to that ticket (latest first)
+
+Ability to change the following data points
+
+status
+
+category
+
+subject
+
+requestor
+
+Ongoing designs which need to be modified can be seen here - https://www.figma.com/file/RxKtfKm83tT9wOuWVVjYSD/?node-id=3568%3A14907 
+
+Future Requirements (ignore for now)
+User creates a ticket for the patient by clicking a button
+
+By patient
+
+By physician
+
+By attorney
+
+By agent (on behalf of patient, physician or attorney)
+
+User is shown a form with the following fields
+
+message/text (which is the issue details)
+
+case category (choose from)
+
+customer service 
+
+radiology
+
+e.g. don’t like report, talk to radiologist 
+
+e.g. question for the radiologist
+
+billing
+
+other
+
+subject
+
+patient complaining
+
+physician complaining
+
+attorney complaining
+
+creator/requestor
+
+patient
+
+use ID for indexing?
+
+physician
+
+use ID for indexing?
+
+attorney
+
+use ID for indexing?
+
+agent name (on behalf of patient, physician, attorney)
+
+identifier for Akumin agent, can be agent name
+
+assignee (move to second-level)
+
+figure a way to automate it based on category, response etc.
+
+Once the ticket is created, user can see a list of all tickets in ticket table view, with the following columns
+
+created_at
+
+creator/requester
+
+assignee
+
+status
+
+open
+
+on hold
+
+closed/resolved
+
+duration of open
+
+category
+
+inspiration
+
+Zendesk
+
+https://share.getcloudapp.com/mXu1WZWx (replace subject with category)
+
+When the user clicks on a ticket, they are taken to a ticket detail view, which can pop-out from the sidebar, where user can see
+
+Message history
+
+show list of all messages related to that ticket
+
+Ability to change the following data points
+
+status
+
+assignee
+
+category
+
+Note - the ticket detail and the ticket creation form can be the same view e.g. when user clicks on create ticket button, the pop-out sidebar can have the submission form too
+
+The backend communication will be powered using RingCentral
+
+https://developers.ringcentral.com/api-reference
+
+Team Messaging API
+
+Doctor’s office can call or SMS radiologist using the RingCentral integration?
+
+text/call/follow up with radiologist 
+
+caller identification
+
+RingCentral Integration
+Internal team messaging 
+
+Ben suggestion : may want to create a glip group ? 
+
+monitor all msgs from profile 
+
+parsing out messages then respond to glip msg 
+
+ringcentral only provides notification of message received and sent -- any substantive messaging and components are third party 
+
+APIs suggested : 
+
+getchat, getconversation, createconversation
+
+Other Resources
+Name
+
+Link
+
+ 
+
+RingCentral Meeting Notes 2021
+
+https://docs.google.com/document/d/1tovbECSYjKbs1oYys8dMYqzK3q5ut-vJ/edit
+
+ 
+
+W - PC - Protocoling
+
+
+Created by Mayank (Unlicensed)
+Last updated: Mar 15, 20211 min read
+5 people viewed
+Navigation
+Current - Home > Workflow Menu > Triage (click on any row) > Patient Chart
+
+Definitions
+User = A user of the Phelix Web App
+
+CPT = Codes used to identify a clinical procedure
+
+Current Requirements (just focus on this)
+Create a new area in the Patient Chart (like Patient Contact Details and Referring Physician Details)
+
+Show the following information in this new area, called Referral Details
+
+CPT codes associated with the referral
+
+User is also able to add new new CPT code(s) for the referral in Referral Details area
+
+Upload new designs to this page in Figma - Phelix Web App 
+
+Future Requirements (ignore for now)
+Connect to Referral MX - pull multiple CPT codes and display them in the PC
+
+ 
+
+Consent Flow
+
+
+
+
+Created by Ian Christie
+Last updated: Oct 04, 2021 by Mridul (Unlicensed)1 min read
+6 people viewed
+
+Consent Flow:
+At first point of contact, a carefully worded consent SMS will be sent. This consent SMS will contain text alerting the patient that if they want to withdrawal consent they can reply “STOP”. Once the SMS is sent, the word “STOP” sent at anytime thereafter, (n SMS later), will trigger a toggle in the patient MX noting that the patient does not want to be contacted. Before the checkpoint MX triggers any checkpoints, it will always check to ensure that the consent toggles in the patient MX have not been triggered. If they have, no SMS can be sent to that patient. 
+
+Configuration of Consent Checkpoint:
+Clinic will automatically have a checkpoint set up that is “On” by default. If the clinic wants to change the wording of the SMS or toggle the checkpoint off, they will be provided a disclaimer removing liability from Phelix. 
+
+Logic For Sending Consent Checkpoint:
+IF consent has not been sent to a phone number AND patient has not been sent consent THEN consent will be sent. 
+
+ELSE, consent will not be sent. 
+
+ 
+
+Consent Questions/Ideas
+Should we give clinics the ability to turn consent back on for a patient (toggle in patient chart?)
+
+ 
+
+W - Appointment Booking
+
+
+
+
+Created by Ian Christie
+Last updated: Oct 15, 2021Version comment1 min read
+3 people viewed
+
