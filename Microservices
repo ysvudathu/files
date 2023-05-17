@@ -1,0 +1,1416 @@
+Microservices Directory
+
+
+
+
+
+
++7
+Created by Mike Mohd
+Last updated: Feb 08, 2022 by Avinash Chavan2 min read
+31 people viewed
+This page outlines the available microservices in the Phelix ecosystem.
+
+ 
+
+Service name
+
+Description
+
+Dev URL
+
+Swagger URL
+
+Database Type
+
+Database Migration Type
+
+Maintainer     
+
+UAT tag 
+
+Production tag
+
+Current production release branch
+
+Appointment service
+
+Handles appointment-related business logic.
+
+https://dev.api.blockhealth.co/appointment
+
+https://dev.api.blockhealth.co/appointment/swagger/
+
+MySQL
+
+Liquibase
+
+ 
+
+ 1.1.2-UAT 
+
+1.1.2-PROD
+
+ 
+
+Appointment ops service
+
+Syncs appointments from different EMRs like OSCAR and Accuro.
+
+https://dev.api.blockhealth.co/appointment-ops
+
+https://dev.api.blockhealth.co/appointment-ops/swagger/
+
+ 
+
+ 
+
+@Mike Mohd 
+
+1.0.6-UAT
+
+1.0.6-PROD
+
+ 
+
+Partner service
+
+Handles partner details partner-related business logic.
+
+https://dev.api.blockhealth.co/partner
+
+https://dev.api.blockhealth.co/partner/swagger/
+
+MySQL
+
+Liquibase
+
+@Mike Mohd 
+
+1.1.4-UAT 
+
+1.1.4-PRO
+
+ 
+
+Patient management service
+
+Handles patient-related data and business logic.
+
+https://dev.api.blockhealth.co/patient
+
+https://dev.api.blockhealth.co/patient/swagger/ 
+
+ 
+
+ 
+
+@Mike Mohd 
+
+ 1.0.1-UAT
+
+ 1.0.1-PROD
+
+ 
+
+Web app integration util service
+
+Serves as an integrator between the microservice ecosystem and the existing PHP web app.
+
+https://dev.api.blockhealth.co/wa-integration-util
+
+https://dev.api.blockhealth.co/wa-integration-util/swagger/
+
+ 
+
+ 
+
+@Mike Mohd 
+
+1.0.13-UAT 
+
+1.0.13-PROD
+
+ 
+
+Checkpoint service
+
+Handles configurations and business logics for notification handling.
+
+internal (inter-service communication): https://dev.api.blockhealth.co/checkpoint
+
+external: https://dev.api.blockhealth.co/ext/checkpoint
+
+https://dev.api.blockhealth.co/checkpoint/swagger/
+
+MongoDB
+
+ 
+
+@Mike Mohd 
+
+ 1.0.7-UAT   
+
+ 1.0.7-PROD
+
+ 
+
+Notification service
+
+Handles notification templates for different channels and their tracks, along with related business logics.
+
+internal (inter-service communication) :  
+
+https://dev.api.blockhealth.co/notification
+
+external: 
+
+https://dev.api.blockhealth.co/ext/notification
+
+https://dev.api.blockhealth.co/notification/swagger/
+
+ 
+
+ 
+
+@Mike Mohd 
+
+ 1.0.4-UAT
+
+ 1.0.4-PROD
+
+ 
+
+Telecom service
+
+Serves as an interface for other services, accessing different telecom systems and their services.
+
+https://dev.api.blockhealth.co/telecom
+
+https://dev.api.blockhealth.co/telecom/swagger/
+
+ 
+
+ 
+
+@Mike Mohd 
+
+1.0.0-UAT 
+
+1.0.0-PROD
+
+ 
+
+Flow Builder service
+
+Creates and manages flows.
+
+https://dev.api.blockhealth.co/flow-builder
+
+https://dev.api.blockhealth.co/flow-builder/swagger/ 
+
+ 
+
+ 
+
+@Sadique Ali 
+
+ 
+
+ 
+
+ 
+
+Conversation service
+
+Executes call flows; chat and SMS flows.
+
+Internal only
+
+https://dev.api.blockhealth.co/conversation/swagger/#/ 
+
+ 
+
+ 
+
+@Sadique Ali 
+
+ 
+
+ 
+
+ 
+
+Document Management service
+
+Extracts images from PDF documents, manipulating template type, document type, and region of interest within the image.
+
+https://dev.api.blockhealth.co/document-service
+
+https://dev.api.blockhealth.co/document-service/swagger/ 
+
+MySQL
+
+ 
+
+@Souvik Das 
+
+ 
+
+ 
+
+ 
+
+Claims service
+
+Loads patient insurance claims data to Waystar API.
+
+http://dev.api.blockhealth.co/claim
+
+https://dev.api.blockhealth.co/claim/swagger/ 
+
+ 
+
+ 
+
+@Avinash Chavan 
+
+ 
+
+ 
+
+ 
+
+EMR service 
+
+Serves as an interface for different EMRs like Oscar, Accuro, and Akumin.
+
+https://dev.api.blockhealth.co/emr
+
+https://dev.api.blockhealth.co/emr-service/swagger/
+
+ 
+
+ 
+
+@Mike Mohd 
+
+1.0.6-UAT
+
+1.0.6-PROD
+
+ 
+
+Job scheduler service 
+
+Handles the business logic of scheduling jobs, according to configured checkpoints in the Checkpoint service.
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+1.0.4-UAT   
+
+1.0.4-PROD
+
+ 
+
+Auth service
+
+Used to authenticate users as per their configured credentials in the PHP web app, and accesses token and refreshes token to access externally exposed APIs.
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+1.0.0-UAT
+
+1.0.0-PROD
+
+ 
+
+Provider service
+
+ 
+
+ 
+
+https://dev.api.blockhealth.co/provider/swagger/#/ 
+
+MYSQL
+
+ 
+
+Umesh
+
+ 
+
+ 
+
+ 
+
+Patient-ops
+
+This micro-service is used to manage Patient’s appointment timeline.
+
+https://dev.api.blockhealth.co/patient-ops
+
+https://dev.api.blockhealth.co/patient-ops/swagger/#/ 
+
+MYSQL
+
+Liquibase
+
+Vishal
+
+ 
+
+ 
+
+ 
+
+Invoice 
+
+This micro-service is used to manage Patient's invoice data
+
+https://dev.api.blockhealth.co/invoice
+
+ 
+
+MYSQL
+
+Liquibase
+
+Avinash
+
+ 
+
+ 
+
+ 
+
+Referral Service
+
+This service is use to load the referral data and start insurance claims
+
+https://dev.api.blockhealth.co/referral
+
+https://dev.api.blockhealth.co/referral/swagger/ 
+
+MYSQL
+
+ 
+
+Avinash
+
+ 
+
+ 
+
+ 
+
+Clinical Service
+
+This service is maintain clinical data for patient
+
+https://dev.api.blockhealth.co/clinical
+
+ 
+
+MongoDB
+
+ 
+
+Avinash
+
+ 
+
+ 
+
+ 
+
+Fax Service
+
+This micro-service is used to manage Fax queue processing
+
+https://dev.api.blockhealth.co/fax
+
+https://dev.api.blockhealth.co/fax/swagger/ 
+
+MySQL
+
+Liquibase
+
+Kiran - Vishal
+
+1.0.4-UAT
+
+ 
+
+ 
+
+Document Ops-Service
+
+This micro-service is used handle data proceed from document by Doc AI.
+
+http://dev.api.blockhealth.co/document-ops
+
+https://dev.api.blockhealth.co/document-ops/swagger/ 
+
+MongoDB
+
+ 
+
+Kiran - Vishal
+
+ 
+
+ 
+
+ 
+
+ 
+
+Referral MX
+
+
+
+
+
+
+Created by Mayank (Unlicensed)
+Last updated: Oct 01, 20219 min read
+11 people viewed
+Referrals can be created by the Referral MX, in addition to the front-end
+
+Data needed for Referrals
+
+Patient Information - Patient MX
+
+Insurance Information - Claims MX
+
+Referring Physician
+
+Clinical Data - Clinical Data MX (new), Labs MX (new)
+
+Reason for Referral
+
+Priority
+
+Clinical Notes and Attachments
+
+Referral Checklist
+
+List of items req for each referral
+
+Location of the clinic
+
+Modality in the clinic
+
+Physician
+
+Room
+
+Different statues for Referral
+
+Received
+
+Incomplete
+
+Booked
+
+Visit Complete
+
+Report Sent back to referred doctor
+
+Other parameters tied to the referral
+
+Multiple appointments in the Appointments MX
+
+and related details
+
+Claim status
+
+Payments - Invoice MX
+
+Plugs into the web app for backwards compatibility
+
+WebApp Tables 
+
+Patient - referral_patient_info
+
+Referring Physician - referral_physician_info
+
+Clinic / Internal Physicians - clinic_physician_info
+
+Appointments - records_patient_visit
+
+Clinical Reports - records_clinic_notes
+
+Referral Checklist - referral_checklist
+
+Other clinical data 
+
+referral_clinic_triage
+
+referral_clinic_triage_devices_info
+
+referral_clinic_triage_diseases_info
+
+referral_clinic_triage_drugs_info
+
+referral_clinic_triage_subsection_info
+
+referral_clinic_triage_symptom_info
+
+referral_clinic_triage_tests_info
+
+
+ 
+
+
+Referral & Auth Status Mapping
+Referral Status
+Referral Incomplete
+
+Referral status = incomplete
+
+Incomplete for 2 reasons : 
+
+Missing items (incomplete status = missing items)
+
+notification sent to referring provider 
+
+If Recondo Eligibility Integration is OFF (i.e. simple Canadian case)
+
+button in UI for staff ‘Complete’
+
+click complete, referral status = received
+
+If recondo Eligibility integration is ON 
+
+button in UI for staff : Eligibility Check
+
+once clicked → Referral status = received 
+
+Send to recondo eligibility check
+
+Eligibility = false (incomplete status = eligibilty false)
+
+Go in Incomplete with Eligibility Status False 
+
+Patient receives notification + self pay option 
+
+if patient self pays, auth status = Self pay, and drop into Booking Queue
+
+if patient pays =  booking checkpoint (triggered once patient has paid)
+
+once patient books = Referral Booked
+
+ 
+
+Referral Received / Triage
+
+Referral status = received
+
+if recondo Eligibility integration is ON
+
+Send to recondo for eligibility check (Relay error to the front end - block creation referral)
+
+‘Book Appointment’ button in UI
+
+if appointment manually booked, or appointment booked from EMR, update referral status = booked (move to Booked tab)
+
+if ‘AutoBook’ selected, trigger Auto-Book checkpoint and move to referral status = in Booking (Booking queue) → Implement later 
+
+If Recondo Eligibility Integration is ON
+
+if false 
+
+Referral status = incomplete
+
+Incomplete status = eligibility false
+
+see workflow above
+
+True (whether initially or once updated)
+
+patient moves into Booking Queue 
+
+Booking Queue (Referral Ready to be Booked)
+
+Referral status = in Booking
+
+If Recondo Auth integration is ON - Introduce column for Auth Status. If Recondo Auth integration is OFF - auth status = N/A, and HIDE Auth status column
+
+possible Auth status values (from load account)
+
+self pay 
+
+N/A or Auth not required (status NA or NR). If Recondo Integration is OFF, Auth status = N/A (and hide auth status column in Booking Tab).
+
+Auth required 
+
+Once patient books (Auth review + deep link worklist only populated once patient books)
+
+Referral status = Booked
+
+if auth status is self-pay =  Referral is Booked 
+
+if auth status is N/A or not required = move to Referral is Booked 
+
+if auth status is required  = move to Auth Review I Tab (needs deep link)
+
+if auth status is initiated = move to Auth Review II Tab
+
+ 
+
+Referral in Auth Review I (tab only visible is Recondo Auth Integration is ON)
+
+Referral status = Booked
+
+1 auth status type
+
+Auth status = Auth required (Deeplink button)
+
+Once deeplink initiated (response method tbd with Recondo)
+
+Auth status = Auth initiated
+
+Move to Auth review II
+
+ 
+
+Referral in Auth Review II (tab only visible if Recondo Auth Integration is ON)
+
+Referral status = Booked
+
+1 Auth status type 
+
+Auth status = ‘Auth Initiated’
+
+Introduce Auth Review Status
+
+Pending (no status update)
+
+Last auth review status response from Recondo table 
+
+Add Auth review status code as checkpoints
+
+Denied cases
+
+Reschedule cases
+
+Checkpoint builder inclusion criteria (if last status is NF x hours before appointment). Define list of status, and x
+
+Referral Booked/Accepted
+
+Referral status = Booked
+
+if auth status is self-pay =  Referral is Booked 
+
+if auth status is N/A or not required = move to Referral is Booked 
+
+if auth status is auth required  = move to Auth Review I Tab 
+
+if auth status is auth initiated = move to Auth Review II Tab
+
+Now listening to Recondo Surepay for estimates
+
+Once we have estimate, we send registration
+
+Once the appointment is booked, move here / view switches to daylist
+
+Self Pay
+
+Send the Registration Form
+
+No more status changes required
+
+Auth Status is N/A
+
+If booked and auth is not req
+
+Send the Registration Form
+
+No more status changes required
+
+Auth Status is N/A
+
+If auth is required
+
+Once auth initiated (deep link)
+
+Wait for TOS payment (SurePay?)
+
+Send Registration Form with TOS payment (Registration bound to payment)
+
+Workflow switches to appointment status (e.g. Oscar) or appointment attributes (e.g. Accuro) b/w Referral Booked and Visit Complete –  will be in Referral MX
+
+If Time of Booking checkpoint is sent w/ Intermediate Status, then Appointment Status = Intermediate Status and if not Appointment Status = NA (or NULL)
+
+Appointment Status Values (Appointment MX)
+
+NA or NULL
+
+Awaiting Notification
+
+Awaiting Confirmation
+
+Notified
+
+Confirmed
+
+Checked-in 
+
+In-room
+
+Visit Complete
+
+Images Ready (specific to imaging)
+
+Report Ready
+
+Appointment Attribute Values (Appointment MX)
+
+Notified - y/n
+
+Confirmed y/n
+
+Registered - y/n
+
+Payment - y/n/partial
+
+Checked-in - y/n
+
+In-room - y/n
+
+Visit Complete - y/n
+
+Images Ready (specific to imaging) - y/n
+
+Report Ready - y/n
+
+Referral Ready/Registered 
+
+Registration complete
+
+Payment complete (y/partial)
+
+Status controlled at the Referral level and not at the appointment level, however, for single appointment referrals, status will change at the appointment level
+
+But for now as we are combining registration and referral to one step in the workflow, this status will still change
+
+Visit Complete or Visits Complete
+
+Status changes from In-room to Visit Complete if only one appointment in referral
+
+Status updates from In-room to Visit Complete after all appointments complete
+
+After visit is complete
+
+Can be multiple visits under one referral
+
+Images Ready
+
+Report Ready
+
+When report is ready
+
+Report Sent
+
+After report is sent
+
+ 
+
+**Referral Statuses and Appointment Statuses are according to FHIR
+
+Auth Status
+
+Action Code
+
+Action Code Description
+
+Waystar Scenario
+
+Recommended Action
+
+Auth Status
+
+Reason
+
+Auth/Cert Status
+
+Substantiation Image?
+
+Phelix Notes
+
+(from calls with Aku and Recondo)
+
+Phelix Actions
+
+A1
+
+Certified In Total
+
+Service is authorized; authorization number and substantiation returned.
+
+No user intervention.
+
+Authorized
+
+Certified in Total 
+
+Authorized Inpatient 
+
+Authorized Outpatient 
+
+Yes
+
+Does Recondo still return the estimate or Phelix shows it from it’s own DB?
+
+CPT codes are authorized but still waiting for estimates from Recondo.
+
+Approved to provide services but should still be eligibility and tos
+
+Referral either in Booking Queue (before booking) or Referral Booked (after booking)
+
+NA
+
+No Action Required
+
+Authorization is not required.
+
+No user intervention.
+
+Authorized
+
+No Authorization Required 
+
+No Authorization Required 
+
+No
+
+does Recondo still return the estimate or Phelix shows it from it’s own DB?
+
+CPT codes are authorized but still waiting for estimates from Recondo. Approved to provide services but should still be eligibility and tos
+
+Referral either in Booking Queue (before booking) or Referral Booked (after booking)
+
+C
+
+Canceled
+
+Request for authorization was canceled by the authorizing agent or ordering provider. This could have been due to the procedure being updated.
+
+Follow-up with ordering provider to notify that the request was canceled.
+
+Pending Review
+
+Authorization Canceled 
+
+Authorization Canceled 
+
+Yes
+
+Cancelled status : 
+
+Sometimes it gets cancelled when procedure is in peer review or by mistake 
+
+Aku team calls to investigate why it got canceled by calling auth department
+
+Referral moves to Auth Initiate Review (AUth Review II)
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Cancelled’ (highlighted for further follow up)
+
+CT
+
+Contact Payer
+
+Authorizing agent requested that they be contacted.
+
+Follow-up with authorizing agent.
+
+Pending Review
+
+Contact Payor 
+
+Contact Payor 
+
+Yes
+
+Move to Referral in Auth Review (Triage) for Akumin team to review
+
+Aku team calls to investigate why it got canceled by calling auth department
+
+Referral moves to Auth Initiate Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Contact Payor’ (highlighted for further follow up)
+
+A3
+
+Not Certified
+
+Payer has denied the authorization request for the specified procedure(s).
+
+Follow-up with ordering provider to cancel, re-schedule, conduct a Peer to Peer, etc.
+
+Pending Review
+
+Denied 
+
+Denied 
+
+Yes
+
+Send Fax to Referring Provider
+
+Send Checkpoint to Patient (denied + option to self pay)
+
+Move to Referral in Auth Review (Triage) 
+
+Aku team notifies referring doctor to inform them of denial (currently some documentation sent along with this notice)
+
+Referral moves to Auth Initiate Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Denied’ (highlighted for further follow up)
+
+Send a denied checkpoint to patient (if self pay, then move to ‘Referral is Booked’)
+
+DN
+
+Denied
+
+Payer has denied the authorization request for the specified procedure(s).
+
+Follow-up with ordering provider to cancel, re-schedule, conduct a Peer to Peer, etc.
+
+Pending Review
+
+Denied 
+
+Denied 
+
+Yes
+
+Send Fax to Referring Provider
+
+Send Checkpoint to Patient (denied + option to self pay)
+
+Move to Referral in Auth Review (Triage) 
+
+Aku team notifies referring doctor to inform them of denial (currently some documentation sent along with this notice)
+
+Referral moves to Auth Initiate Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Denied’ (highlighted for further follow up)
+
+Send a denied checkpoint to patient (if self pay, then move to ‘Referral is Booked’)
+
+71
+
+Term Expired
+
+Patient's insurance eligibility ended before authorization became effective or during effective dates.
+
+Review patient's insurance eligibility and follow-up with authorizing agent as needed.
+
+Pending Review
+
+Denied 
+
+Denied 
+
+Yes
+
+Send Fax to Referring Provider
+
+Send Checkpoint to Patient (to update their insurance information or self pay)
+
+Move to Referral in Auth Review (Triage)
+
+Referral moves to Auth Initiate Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Denied’ (highlighted for further follow up)
+
+Send a denied checkpoint to patient (if self pay, then move to ‘Referral is Booked’)
+
+NF
+
+Not Found
+
+Authorization request was not found on the website.
+
+Follow-up with authorizing agent and initiate the authorization request if necessary.
+
+No user intervention until X hours/days from service date.
+
+Pending Review
+
+Not Found 
+
+Not Found 
+
+Yes
+
+In what circumstances does NF occur after initiating a deep link ? 
+
+When you send status queries, recondo checks portal query to see if auth has been approved yet or initially certified. If theres nothing on the portal, recondo brings back not found. 
+
+If its couple days before tos, then Aku user will need to call or whatever workflow is
+
+Referral moves to Auth Initiate Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Not found’ (highlighted for further follow up)
+
+No action until x hours before appointment, then trigger Reschedule checkpoint to patient
+
+(if self pay, then move to ‘Referral is Booked’)
+
+A2
+
+Certified - Partial
+
+Not all procedures were certified. 
+
+Contact authorizing agent to determine what actions need to be taken in order for them to certify in total. 
+
+Pending Review
+
+Partial Authorization 
+
+Partial Authorization 
+
+Yes
+
+Move to Referral in Auth Review (Triage) for Akumin team to review
+
+Aku team would need to investigate with auth team
+
+Referral moves to Auth Initiate Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Partial Auth (Certified - Partial)’ (highlighted for further follow up)
+
+ 
+
+CC
+
+Conditionally Certified
+
+Authorization found, but Recondo did not have procedure information to associate it to.
+
+Follow-up with authorizing agent to ensure the authorization on their website is for the same procedure that is scheduled for the patient.
+
+Pending Review
+
+Partial Authorization 
+
+Partial Authorization 
+
+Yes
+
+ 
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Partial Auth (Conditionally Certified) (highlighted for further follow up)
+
+Multiple
+
+Multiple
+
+There are multiple procedures and at least one has a different status than the other procedures. 
+
+Follow-up with authorizing agent regarding any procedures that have a status other than Certified in Total, Complete, Auth Not Required, or No Action Required.
+
+Pending Review
+
+Partial Authorization 
+
+Partial Authorization 
+
+Yes
+
+Can auth can be returned by CPT codes rather than bundled 
+
+It would have to be a separate account if we dont want bundled answers  
+
+It will tell us status on all of them, but general status provided on same account 
+
+Should be able to tell within multiple status response which CPT needs action and which is authorized
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Partial Auth (Multiple) (highlighted for further follow up)
+
+P2
+
+Peer to Peer
+
+Authorizing agent requested a peer-to-peer with the ordering provider. 
+
+Conduct a peer-to-peer.
+
+Pending Review
+
+Peer to Peer 
+
+Peer to Peer 
+
+Yes
+
+What information crosses over from Recondo that we can use to relay to the referring provider and any timelines associated with this. 
+
+Recondo only returns what’s on the portal. User will have to go into portal immediately (usually only have 24-48) to action . oftentimes, there is no timeline listed but should be tended to immediately (need to be put in workflow to be actioned immediately) 
+
+Brings back substantiation image
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Peer to peer' 
+(highlighted for further follow up)
+
+Checkpoint to referring provider
+
+A4
+
+Pending
+
+Authorizing agent has not made a final decision.
+
+No user intervention until X days from service date.
+
+Pending Review
+
+Pending 
+
+Pending 
+
+Yes
+
+ 
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Pending’ (highlighted for further follow up)
+
+No action until x hours before appointment, then trigger Reschedule checkpoint to patient
+
+(if self pay, then move to ‘Referral is Booked’)
+
+51
+
+Complete
+
+Initiation of the authorization is complete.
+
+No user intervention.
+
+Pending Review
+
+Pending Status Check 
+
+Pending Status Check 
+
+Yes
+
+ 
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Pending’ (highlighted for further follow up)
+
+No action until x hours before appointment, then trigger Reschedule checkpoint to patient
+
+(if self pay, then move to ‘Referral is Booked’)
+
+X
+
+Payer Contact Error
+
+Failed to contact the authorizing agent in order to obtain a status. 
+
+No user intervention until X days from service date.
+
+Pending Review
+
+Pending Status Check 
+
+Pending Status Check 
+
+No
+
+ 
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Payor contact Error’ (highlighted for further follow up)
+
+No action until x hours before appointment, then trigger Reschedule checkpoint to patient
+
+(if self pay, then move to ‘Referral is Booked’)
+
+PO
+
+Provider to Obtain
+
+Payer does not support electronic AuthStatus transactions. This is common for BCBS out of state plans.
+
+Follow internal processes for this insurance plan to obtain a status.
+
+Pending Review
+
+Provider to Obtain 
+
+Provider to Obtain 
+
+No
+
+ 
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Provider to Obtain' (highlighted for further follow up)
+
+U
+
+Unknown
+
+Status is unknown.
+
+Follow-up with authorizing agent to determine if there is an authorization on file.
+
+Pending Review
+
+Unknown Status 
+
+Unknown Status 
+
+No
+
+ 
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Unknown' (highlighted for further follow up)
+
+44
+
+Verifying
+
+Recondo is checking for an authorization and we are waiting for the bot to complete the status check. 
+
+No user intervention until X days from service date.
+
+Pending Review
+
+Verifying 
+
+Verifying 
+
+No
+
+ 
+
+Referral stays in Auth Review
+
+Auth status is ‘Auth initiated’
+
+Auth review status updates to ‘Verifying’ (highlighted for further follow up)
+
+No action until x hours before appointment, then trigger Reschedule checkpoint to patient
+
+(if self pay, then move to ‘Referral is Booked’)
+
+NR
+
+Auth Not Required
+
+Authorization is not required.
+
+No user intervention.
+
+Authorized
+
+No Authorization Required 
+
+No Authorization Required 
+
+No
+
+ 
+
+Referral either in Booking Queue (before booking) or Referral Booked (after booking)
+
+Fax Service
+
+
+Created by Avinash Chavan
+Last updated: Sep 24, 2021Version comment1 min read
+5 people viewed
+Manages Push notification for fax inbox
+
+
+Order microservice
+
+
+
+
+Created by Avinash Chavan
+Last updated: Jun 13, 2022Version comment1 min read
+6 people viewed
+PHPROJ-112: Akumin | New Order View 
+IN DEV
+  - Akumin | New Order View
+
+ 
+
+Create order flow
+
+ 
+
+Change order flow
+ 
+
